@@ -1,7 +1,7 @@
 @echo off
 :: PowerAuditor - A simple script to help report writing by https://github.com/1mm0rt41PC
 ::
-:: Filename: powerauditor_git.bat - Script for auto update for templates
+:: Filename: powerauditor_git.bat - Script for auto update
 ::
 :: This program is free software; you can redistribute it and/or modify
 :: it under the terms of the GNU General Public License as published by
