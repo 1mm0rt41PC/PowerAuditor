@@ -20,6 +20,7 @@
 set mypath=%~dp0
 set mypath=%mypath:~0,-1%
 pushd %mypath%
-git %2 %3 %4 %5 %6 %7 > %1.log 2>&1
+git checkout *.xlsm >> %1.log 2>>&1
+git pull > %1.log 2>&1
 echo %ERRORLEVEL% > %1.ret 2>&1
 popd
