@@ -29,7 +29,7 @@ End Sub
 
 Private Sub nbReportType(control As Object, ByRef nbElt)
     'Définit le nombre d'éléments dans la combobox
-    nbElt = Worksheets("PowerAuditor").Range("REPORT_TYPE_LIST").Cells.count
+    nbElt = Worksheets("PowerAuditor").Range("REPORT_TYPE_LIST").Cells.Count
 End Sub
 
 

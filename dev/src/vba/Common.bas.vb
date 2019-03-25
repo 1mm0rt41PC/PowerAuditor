@@ -252,7 +252,7 @@ Public Sub UpdateLevelCellColor()
     Dim rng As Range: Set rng = Range("LEVEL_LIST")
     Dim sLevel As String: sLevel = getInfo("LEVEL")
     Dim i As Integer
-    For i = 1 To rng.Cells.count
+    For i = 1 To rng.Cells.Count
         If rng(i).Value2 = sLevel Then
             Range("LEVEL").Interior.color = rng(i).Interior.color
             Range("LEVEL").Font.color = rng(i).Font.color
@@ -371,7 +371,7 @@ End Function
 
 Function selectCCInCC(oWRange As Object, sTitle As String) As Object
     Dim i As Integer
-    For i = 1 To oWRange.ContentControls.count
+    For i = 1 To oWRange.ContentControls.Count
         If oWRange.ContentControls(i).title = sTitle Then
             Set selectCCInCC = oWRange.ContentControls(i)
             Exit Function
@@ -409,4 +409,36 @@ Public Function CVSSReader(cvss As String) As String
     Kill sTmpFile
 End Function
 
+
+
+Public Sub updateTemplateList()
+    Dim iRow As Integer: iRow = Range("REPORT_TYPE_LIST").Row
+    Dim iCol As Integer: iCol = Range("REPORT_TYPE_LIST").Column
+    Dim sPath As String: sPath = Common.PowerAuditorPath() & "\template\"
+    Dim ws As Worksheet: Set ws = Worksheets("PowerAuditor")
+    Dim pFile: pFile = Dir(sPath & "*.xlsm")
+    Dim sTmp As String
+    Range("REPORT_TYPE_LIST").Value2 = ""
+    While pFile <> ""
+        sTmp = Replace(Replace(Replace(pFile, "-EN", ""), "-FR", ""), ".xlsm", "")
+        If Not isValueInExcelRange(sTmp, Range("REPORT_TYPE_LIST")) Then
+            ws.Cells(iRow, iCol).Value2 = sTmp
+            iRow = iRow + 1
+        End If
+        pFile = Dir
+    Wend
+    Exit Sub
+End Sub
+
+
+Public Function isValueInExcelRange(val As String, rng As Range) As Boolean
+    Dim i As Integer
+    For i = 1 To rng.Count
+        If rng(i).Value2 = val Then
+            isValueInExcelRange = True
+            Exit Function
+        End If
+    Next i
+    isValueInExcelRange = False
+End Function
 

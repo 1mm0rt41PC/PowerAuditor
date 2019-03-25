@@ -32,11 +32,12 @@ Public G_naturalTableColor1 As Long
 Public G_naturalTableColor2 As Long
 Public G_ws As Worksheet
 Public G_SaveAsOnGoing As Boolean
-
+Public G_exportToProd As Boolean
 
 Private Sub Workbook_AfterSave(ByVal Success As Boolean)
     If G_SaveAsOnGoing Then Exit Sub
     Versionning.ExportVisualBasicCode
+    Call Common.updateTemplateList
 End Sub
 
 
@@ -65,6 +66,8 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
         Application.DisplayAlerts = True
     End If
     Call CleanUpInvalidExcelRef
+    ' On cleanup la liste des templates
+    Range("REPORT_TYPE_LIST").Value2 = ""
 End Sub
 
 
@@ -76,7 +79,9 @@ Private Sub Workbook_Open()
             Call VBA.CreateObject("WScript.Shell").Run(Common.PowerAuditorPath() & "\install\", 0, False)
         End If
     End If
-
+        
+    Call updateTemplateList
+    
     ' On update les repos
     Call IOFile.git("pull", "vulndb")
     Call IOFile.git("pull", "template")
@@ -88,7 +93,9 @@ Sub ExportExcelToWordTemplate(control As Object)
     If MsgBox("Do you want generate the word template ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     
     ' On renome le template avec le bon nom
-    renameDocument ThisWorkbook, "xlsm", "TEMPLATE", deleteOld:=True
+    If Not Common.isDevMode() Then
+        renameDocument ThisWorkbook, "xlsm", "TEMPLATE", deleteOld:=True
+    End If
 
     Dim i As Integer
     Dim iRow As Integer: iRow = 3
@@ -154,7 +161,7 @@ End Sub
 Public Sub toProd(control As Object)
     Application.DisplayAlerts = False
     Dim sFilepath As String
-    
+        
     ' On upgrade le template vers la bonne destination
     Dim wb_exp As Workbook: Set wb_exp = Workbooks.Add
     Dim ws As Worksheet
@@ -186,6 +193,11 @@ Public Sub toProd(control As Object)
         .BuiltinDocumentProperties("Keywords") = ""
         .BuiltinDocumentProperties("Comments") = .BuiltinDocumentProperties("Title")
     End With
+    ' On cleanup la liste des templates
+    G_exportToProd = True
+    Range("REPORT_TYPE_LIST").Value2 = ""
+    Range("REPORT_TYPE").Value2 = ""
+    
     Call CleanUpInvalidExcelRef
     G_SaveAsOnGoing = True
     Call ThisWorkbook.SaveAs(Replace(Common.PowerAuditorPath() & "\PowerAuditor_v" & Year(Now) & Month(Now) & Day(Now) & ".xlsm", "\\", "\"), FileFormat:=xlOpenXMLWorkbookMacroEnabled)

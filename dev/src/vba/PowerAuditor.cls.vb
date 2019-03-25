@@ -26,6 +26,7 @@ Option Explicit
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Private Sub Worksheet_Change(ByVal Target As Range)
+    If ThisWorkbook.G_exportToProd Then Exit Sub
     If Not Application.Intersect(Range("LANG"), Range(Target.Address)) Is Nothing Or Not Application.Intersect(Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing Then
         Call Common.LoadExcelSheet
     End If
@@ -45,5 +46,4 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         Call CustomRibbonTab.invalidAlltext
     End If
 End Sub
-
 

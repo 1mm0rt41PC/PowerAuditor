@@ -85,7 +85,7 @@ Private Function getActiveInstance(docName As String) As Object
     Dim wApp
     While 1
         Set wApp = GetObject(, "Word.Application")
-        If wApp.Documents.count = 0 Or wApp.Visible = False Then
+        If wApp.Documents.Count = 0 Or wApp.Visible = False Then
             wApp.Application.DisplayAlerts = False
             wApp.Quit
         ElseIf wApp.ActiveDocument.FullName = docName Then
@@ -119,10 +119,10 @@ Public Sub resizeUpTable(wDoc As Object, title As String, nbVuln As Integer)
         Debug.Print "[!][resizeUpTable] Not enough vulnerabilities !"
         Exit Sub
     End If
-    While myTab.Rows.count > nbVuln
+    While myTab.Rows.Count > nbVuln
         myTab.Rows.Item(3).Delete
     Wend
-    While myTab.Rows.count <= nbVuln
+    While myTab.Rows.Count <= nbVuln
         myTab.Rows.Add myTab.Rows.Item(2)
     Wend
 End Sub
@@ -151,7 +151,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     While ws.Cells(2, iCol).Value2 <> ""
         cellColor = ws.Cells(iRow, iCol).DisplayFormat.Interior.color
         Set cc = wDoc.SelectContentControlsByTitle("VLN_" & ws.Cells(2, iCol).Value2 & "_" & id)
-        For i = 1 To cc.count
+        For i = 1 To cc.Count
             With cc.Item(i).Range
                 ' Copy color
                 If cellColor <> ThisWorkbook.G_naturalTableColor1 And cellColor <> ThisWorkbook.G_naturalTableColor2 Then             ' Bleu du tableau
@@ -237,7 +237,7 @@ Private Sub createVulnId(wDoc As Object, ws As Worksheet, id As Integer)
     idName = ws.Cells(2, ColumnIndex:=1).Value2
     idName = idName & "_" & id
     
-    If wDoc.SelectContentControlsByTitle("VLN_" & idName).count <> 0 Then Exit Sub
+    If wDoc.SelectContentControlsByTitle("VLN_" & idName).Count <> 0 Then Exit Sub
    
     ' ID n'existe pas
     ' Copy le template
@@ -258,7 +258,7 @@ Private Sub createVulnId(wDoc As Object, ws As Worksheet, id As Integer)
     
     ' Renomage
     Dim i As Integer
-    For i = 1 To ccs.count
+    For i = 1 To ccs.Count
         ccs.Item(i).title = ccs.Item(i).title & "_" & id
     Next
     cc_copy.Delete False
@@ -354,7 +354,7 @@ End Sub
 Public Sub setCCVal(wDoc As Object, sTitle As String, sVal As String)
     Dim i As Integer
     Dim ccs: Set ccs = wDoc.SelectContentControlsByTitle(sTitle)
-    For i = 1 To ccs.count
+    For i = 1 To ccs.Count
         ccs.Item(i).Range.text = sVal
     Next
 End Sub
@@ -388,8 +388,8 @@ Public Sub copyExcelColor2Word(wDoc As Object, sTitle As String, rCell As Range)
     Dim ccs: Set ccs = wDoc.SelectContentControlsByTitle(sTitle)
     Dim sVal As String: sVal = Common.CleaupScoreMesg(rCell.Value2)
     Dim i As Integer
-    For i = 1 To ccs.count
-        If ccs(1).Range.Cells.count = 1 Then
+    For i = 1 To ccs.Count
+        If ccs(1).Range.Cells.Count = 1 Then
             ccs(1).Range.Cells.Item(1).Shading.BackgroundPatternColor = lColor
         End If
         ccs.Item(i).Range.text = sVal
@@ -444,7 +444,7 @@ Public Sub setCCVisibility(wDoc As Object, sTitle As String, bIsHidden As Boolea
     Dim i As Integer
     Dim ccs As Object: Set ccs = wDoc.SelectContentControlsByTitle(sTitle)
     wDoc.ActiveWindow.View.ShowHiddenText = True
-    For i = 1 To ccs.count
+    For i = 1 To ccs.Count
         ccs.Item(i).Range.Font.Hidden = bIsHidden
     Next
     wDoc.ActiveWindow.View.ShowHiddenText = False
@@ -475,7 +475,7 @@ Public Sub removeHiddenText(wAd As Object)
             .Execute replacewith:="", Replace:=wdReplaceAll ' = 2
             If .found Then
                 Dim i As Integer: i = 1
-                While i <= wdRange.Tables.count
+                While i <= wdRange.Tables.Count
                     If wdRange.Tables(i).Range.Font.Hidden = -1 Or wdRange.Tables(i).Range.Cells(1).Range.Font.Hidden = -1 Then
                         wdRange.Tables(i).Delete
                     Else
@@ -483,7 +483,7 @@ Public Sub removeHiddenText(wAd As Object)
                     End If
                 Wend
                 i = 1
-                While i <= wdRange.ContentControls.count
+                While i <= wdRange.ContentControls.Count
                     If wdRange.ContentControls(i).Range.Font.Hidden = -1 Then
                         wdRange.ContentControls(i).Delete
                     Else
@@ -508,9 +508,8 @@ End Sub
 '
 Public Sub removeAllContentControls(wAd)
     Dim ccs As Object: Set ccs = wAd.ContentControls
-    While ccs.count > 0
+    While ccs.Count > 0
         ccs.Item(1).Delete False
     Wend
 End Sub
-
 
