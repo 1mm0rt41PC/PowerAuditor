@@ -38,4 +38,4 @@ del /q %DST%\desktop.txt
 attrib +S +H +R %DST%\desktop.ini
 taskkill -im explorer.exe /f >nul&start explorer
 ::pause
-powershell -exec bypass -nop -File "%cd%\wrapper.ps1"
+powershell -exec bypass -nop -File "%DST%\install\wrapper.ps1"

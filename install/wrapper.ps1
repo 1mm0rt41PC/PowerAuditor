@@ -16,6 +16,16 @@
 # along with this program; see the file COPYING. If not, write to the
 # Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+[void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") 
+$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email", "GIT configuration")
+$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name (ie: NUEL Guillaume)", "GIT configuration")
+git config --global user.name $pseudo
+git config --global user.email $email
+
+echo "FriendlyName=$pseudo" | Out-File -FilePath $env:USERPROFILE\PowerAuditor\config.ini -Encoding ascii
+echo "EmailAddress=$email" | Out-File -Append -FilePath $env:USERPROFILE\PowerAuditor\config.ini -Encoding ascii
+
+
 if( [System.IO.File]::Exists('C:\Program Files\Git\bin\git.exe') ){
 	Write-Host "Git allready installed"
 	exit
@@ -37,12 +47,3 @@ if( -not [System.IO.File]::Exists('C:\ProgramData\chocolatey\bin\choco.exe') ){
 choco install git.install --force -y
 # Requis pour ActiveWorkbook.VBProject.VBComponents
 reg ADD HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security /v AccessVBOM /t REG_DWORD /d 1 /f
-
-$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email", "GIT configuration")
-$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name (ie: NUEL Guillaume)", "GIT configuration")
-git config --global user.name $pseudo
-git config --global user.email $email
-
-echo "FriendlyName=$pseudo" | Out-File -FilePath $env:USERPROFILE\PowerAuditor\config.ini -Encoding ascii
-echo "EmailAddress=$email" | Out-File -Append -FilePath $env:USERPROFILE\PowerAuditor\config.ini -Encoding ascii
-
