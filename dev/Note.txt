@@ -1,0 +1,52 @@
+' Required:
+' 	- Public Function getCorp() As String
+' 	- Public Function getManager() As String
+' 	- Public Function getFilename(pType As String) As String
+' 	- Public Sub init(wDoc As Object, ws As Worksheet)
+' 	- Public Sub finish(wDoc As Object, ws As Worksheet, nbVuln As Integer)
+' 	- Public Sub insertVuln(wDoc As Object, ws As Worksheet, line As Integer)
+' 	- Public Sub GenSynthesis(wDoc As Object, ws As Worksheet)
+' 	- Public Sub ExportFinalStaticsDocuments(wDoc As Object, ws As Worksheet)
+
+
+[PA]
+	if dev
+		- Load vba
+	- load xlsm
+	if dev
+		- reload vba of xlsm
+	If dev
+		- export vba of xlsm
+		- export xlsm
+		- remove all sheet
+			
+countFixType(ws,
+Common.countOccurenceInCol(ws, COL_FIXTYPE, sVal As String) As Integer
+
+
+================================================================================
+Modification d'architecture
+	La majorité d’entre elles ([nb=3]) ([vln=XXXXX]) impliquent des modifications dans le code de l’application.
+	[nb=3] vulnérabilités ([vln=XXXXX]) sont dues à un manque de **durcissement** de la **configuration**.
+	
+Revue de code => des modifications dans le code de l’application.
+Configuration / Revue de code => des modifications dans le code de l’application.
+Gestion des mises à jour => de mettre à jour des serveurs
+Configuration Système => des modifications la configuration des serveurs
+Configuration Réseau => des modifications la configuration des serveurs
+Autre => /
+
+
+
+
+7 vulnérabilités ont été trouvées durant l’audit.
+
+La majorité d’entre elles (4) (XXXXX) impliquent des modifications dans le code de l’application.
+[Configuration]
+	[nb=3] vulnérabilités ([vln=XXXXX]) sont dues à un manque de **durcissement** de la **configuration**.
+
+[nb=3] vulnérabilités ([vln=XXXXX]) sont dues à un manque de **durcissement** de la **configuration**.
+[nb=3] vulnérabilités ([vln=XXXXX]) sont dues à un manque de **durcissement** de la **configuration**.
+[nb=3] vulnérabilités ([vln=XXXXX]) sont dues à un manque de **durcissement** de la **configuration**.
+[nb=3] vulnérabilités ([vln=XXXXX]) sont dues à un manque de **durcissement** de la **configuration**.
+[nb=3] vulnérabilités ([vln=XXXXX]) sont dues à un manque de **durcissement** de la **configuration**.

@@ -1,0 +1,64 @@
+<!--
+' PowerAuditor - A simple script to help report writing by https://github.com/1mm0rt41PC
+'
+' Filename: ribbon.txt
+'
+' This program is free software; you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation; either version 2 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program; see the file COPYING. If not, write to the
+' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+Tool: Custom UI Editor For Microsoft Office
+>> https://silkyroad.developpez.com/excel/ruban/
+Icons: https://bert-toolkit.com/imagemso-list.html
+
+https://www.rondebruin.nl/win/s2/win001.htm
+https://www.rondebruin.nl/win/s2/win003.htm
+-->
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="CustomRibbonTab.onLoad">
+	<ribbon startFromScratch="false">
+		<qat/>
+		<tabs>
+			<tab id="PowerAuditor" label="PowerAuditor" insertBeforeQ="TabFormat">
+				<group id="Reports" label="Reports" autoScale="true">
+					<button id="FillExcelWithProof" label="Fill excel with proof" imageMso="TableAutoFormat" onAction="ThisWorkbook.FillExcelWithProof"/>
+					<button id="ExportExcelToWordTemplate" label="Export Excel to Word" imageMso="HappyFace" onAction="ThisWorkbook.ExportExcelToWordTemplate"/>
+					<button id="GenSynthesis" label="Generate synthesis" imageMso="ChartInsert" onAction="ThisWorkbook.GenSynthesis"/>
+					<button id="ExportFinalStaticsDocuments" label="Generate final RA/RD/XL" imageMso="PageOrientationPortraitLandscape" size="large" onAction="ThisWorkbook.ExportFinalStaticsDocuments"/>
+				</group>
+				<group id="TeamSync" label="TeamSync" autoScale="true">
+					<button id="ExportVulnToGit" label="Export vuln to git" imageMso="FileSaveAsWebPage" size="large" onAction="ThisWorkbook.ExportVulnToGit"/>
+				</group>
+				<group id="Dev" label="Dev" autoScale="true">
+					<button id="toProd" label="Send template to prod" getEnabled="CustomRibbonTab.GetEnabled" imageMso="SendStatusReport" onAction="ThisWorkbook.toProd"/>
+				</group>
+				<group id="Fields" label="Fields" autoScale="true">
+					<!-- getItemCount="nbReportType" va définir le nombre d'items dans la combobox. --> 
+					<!-- getItemLabel="getReportTypeByIndex" permet d'alimenter la combobox. -->
+					<!-- invalidateContentOnDrop="true" permet la mise à jour automatique du contrôle. -->
+					<comboBox id="LANG" label="Lang" onChange="CustomRibbonTab.RibbonOnChange" imageMso="Spelling" getText="CustomRibbonTab.GetText"> 
+						<item id="lang_fr" label="FR" /> 
+						<item id="lang_en" label="EN" /> 
+					</comboBox>
+					<editBox id="CLIENT" imageMso="SendCopySelectNames" label="Client :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Name of the client." sizeString="99999999999999"/>					
+					<comboBox id="REPORT_TYPE" imageMso="DocumentTemplate" label="Tpl : " getItemCount="CustomRibbonTab.nbReportType" getItemLabel="CustomRibbonTab.getReportTypeByIndex" invalidateContentOnDrop="true" getText="CustomRibbonTab.GetText" />
+					<separator id="Sep01"/>
+					<editBox id="TARGET" imageMso="OrganizationChartInsertCoworker" label="Target :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Version of the document" sizeString="99999999999999"/>
+					<separator id="Sep02"/>
+					<editBox id="VERSION_DATE" imageMso="OpenAttachedCalendar" label="Version :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Version of the document" sizeString="99999999999999"/>
+					<editBox id="BEGIN_DATE" imageMso="OpenAttachedCalendar" label="Begin :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Date where the audit BEGIN" sizeString="99999999999999"/>
+					<editBox id="END_DATE" imageMso="OpenAttachedCalendar" label="End :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Date where the audit END" sizeString="99999999999999"/>
+				</group>
+			</tab>
+		</tabs>
+	</ribbon>
+</customUI>

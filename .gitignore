@@ -1,0 +1,8 @@
+~*
+vulndb/*
+dev/vuln/*
+template/*
+dev/src/vba/RT_*.cls.vb
+*.docx
+*.docm
+desktop.ini
