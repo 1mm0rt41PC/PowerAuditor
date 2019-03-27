@@ -85,6 +85,7 @@ Private Sub Workbook_Open()
     ' On update les repos
     Call IOFile.git("pull", "vulndb")
     Call IOFile.git("pull", "template")
+    Call IOFile.git("pull", "powerauditor")
     Versionning.VBAFromCommonSrc
 End Sub
 

@@ -1,3 +1,6 @@
+https://github.com/juliocesarfort/public-pentesting-reports/blob/master/RedSiege/RedSiege-SampleReport.pdf
+
+
 ' Required:
 ' 	- Public Function getCorp() As String
 ' 	- Public Function getManager() As String
