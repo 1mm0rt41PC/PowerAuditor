@@ -22,5 +22,6 @@ set mypath=%mypath:~0,-1%
 pushd %mypath%
 git checkout *.xlsm >> %1.log 2>>&1
 git pull > %1.log 2>&1
+git pull > %1.log 2>&1
 echo %ERRORLEVEL% > %1.ret 2>&1
 popd
