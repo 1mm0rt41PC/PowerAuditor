@@ -28,6 +28,26 @@ if( (Get-ChildItem $env:USERPROFILE\PowerAuditor\config.ini -ErrorAction Silentl
 	echo "EmailAddress=$email" | Out-File -Encoding ascii -Append $env:USERPROFILE\PowerAuditor\config.ini
 }
 
+
+echo '
+{
+	"monaco": {
+		"editorOptions": {
+			"minimap": {
+				"enabled": false
+			},
+			"wordWrap": "bounded"
+		}
+	},
+	"sorting": {
+		"by": "title",
+		"type": "ascending"
+	},
+	"tutorial": true,
+	"cwd": "%USERPROFILE%\\PowerAuditor\\vulndb\\.notable"
+}'.Replace('%USERPROFILE%',($env:USERPROFILE).Replace("\", "\\") | Out-File -Encoding ascii $env:USERPROFILE\.notable.json
+
+
 # White list git host to avoid error "unknown host key"
 mkdir $env:USERPROFILE\.ssh -ErrorAction SilentlyContinue
 Get-ChildItem .. -Recurse -Force | where {  $_.FullName.Contains(".git\config") } | foreach {
