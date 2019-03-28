@@ -77,7 +77,7 @@ if( -not [System.IO.File]::Exists('C:\ProgramData\chocolatey\bin\choco.exe') ){
 	iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 }
 
-# Install git
-choco install git.install --force -y
+# Install git and notable
+choco install git.install notable --force -y
 # Required for ActiveWorkbook.VBProject.VBComponents
 reg ADD HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security /v AccessVBOM /t REG_DWORD /d 1 /f
