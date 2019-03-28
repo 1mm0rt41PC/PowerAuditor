@@ -93,6 +93,7 @@ End Function
 
 
 Public Function git(sArgs As String, Optional sRepo As String = "vulndb", Optional iRecurs As Integer = 5) As Boolean
+    Debug.Print "Git " & sArgs & " on <" & sRepo & ">"
     Dim tmpFile As String: tmpFile = Environ("temp") & "\" & RandomString(7)
     Dim ret As String
     If iRecurs <= 0 Then
