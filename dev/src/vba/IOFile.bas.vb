@@ -18,8 +18,36 @@ Option Explicit
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-Public poney As String
 Dim G_oWSH As Object
+
+
+Public Function filenameEncode(sFileName As String) As String
+    Dim i As Integer
+    Dim sRet As String
+    Dim cTmp As String
+    Dim dec As Variant: dec = Array("<", ">", ":", Chr(34), "/", "\", "|", "?", "*")  ' Chr(34) = "
+    Dim enc As Variant: enc = Array(60, 62, 58, 34, 47, 92, 124, 63, 42)
+    
+    For i = 1 To UBound(dec)
+        sFileName = Replace(sFileName, dec(i), "%" & enc(i))
+    Next i
+    filenameEncode = sFileName
+End Function
+
+
+Public Function filenameDecode(sFileName As String) As String
+    Dim i As Integer
+    Dim sRet As String
+    Dim cTmp As String
+    Dim dec As Variant: dec = Array("<", ">", ":", Chr(34), "/", "\", "|", "?", "*")  ' Chr(34) = "
+    Dim enc As Variant: enc = Array(60, 62, 58, 34, 47, 92, 124, 63, 42)
+    
+    For i = 1 To UBound(dec)
+        sFileName = Replace(sFileName, "%" & enc(i), dec(i))
+    Next i
+    filenameDecode = sFileName
+End Function
+
 
 Public Sub removeFile(mFile As String)
     On Error GoTo removeFile_err
@@ -53,7 +81,7 @@ Public Function renameDocument(inst, ext As String, pType As String, Optional By
             newFileName = ThisWorkbook.Path & Application.PathSeparator & fileName
         Else
             newFileName = ThisWorkbook.Path & Application.PathSeparator & "output" & Application.PathSeparator & fileName
-            Call MyMkDir(ThisWorkbook.Path & Application.PathSeparator & "output")
+            Call myMkDir(ThisWorkbook.Path & Application.PathSeparator & "output")
         End If
     End If
     
@@ -94,7 +122,7 @@ End Function
 
 Public Function git(sArgs As String, Optional sRepo As String = "vulndb", Optional iRecurs As Integer = 5) As Boolean
     Debug.Print "Git " & sArgs & " on <" & sRepo & ">"
-    Dim tmpFile As String: tmpFile = Environ("temp") & "\" & RandomString(7)
+    Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7)
     Dim ret As String
     If iRecurs <= 0 Then
         MsgBox "Git is not installed or not initialised !?", vbOKOnly, "PowerAuditor"
@@ -105,7 +133,7 @@ Public Function git(sArgs As String, Optional sRepo As String = "vulndb", Option
         Set G_oWSH = VBA.CreateObject("WScript.Shell")
     End If
     On Error GoTo reloadWSH
-    G_oWSH.Run Common.PowerAuditorPath() & "\" & sRepo & "_git.bat " & tmpFile & " " & sArgs, 0, True
+    G_oWSH.Run Common.getPowerAuditorPath() & "\" & sRepo & "_git.bat " & tmpFile & " " & sArgs, 0, True
     On Error GoTo 0
     ret = Common.trim(fileGetContent(tmpFile & ".ret"))
     If ret <> "0" Then
@@ -141,24 +169,24 @@ End Function
 
 
 
-Public Sub fileAppend(sFilename As String, sData As String)
+Public Sub fileAppend(sFileName As String, sData As String)
     Dim iFileNum As Integer: iFileNum = FreeFile()
-    Open sFilename For Append As #iFileNum
+    Open sFileName For Append As #iFileNum
     Print #iFileNum, sData
     Close #iFileNum
 End Sub
 
-Public Sub fileSetContent(sFilename As String, sData As String)
+Public Sub fileSetContent(sFileName As String, sData As String)
     Dim iFileNum As Integer: iFileNum = FreeFile()
-    Open sFilename For Output As #iFileNum
+    Open sFileName For Output As #iFileNum
     Print #iFileNum, sData
     Close #iFileNum
 End Sub
 
-Public Function fileGetContent(sFilename As String) As String
+Public Function fileGetContent(sFileName As String) As String
     Dim sData As String
     Dim oFSO As Object: Set oFSO = CreateObject("Scripting.FileSystemObject")
-    Dim oTF As Object: Set oTF = oFSO.OpenTextFile(sFilename, 1)
+    Dim oTF As Object: Set oTF = oFSO.OpenTextFile(sFileName, 1)
     sData = oTF.readall()
     oTF.Close
     fileGetContent = sData
@@ -171,7 +199,7 @@ Public Function getFileExt(mFileName As String) As String
     getFileExt = aPath(UBound(aPath))
 End Function
 
-Public Function MyMkDir(sPath As String)
+Public Function myMkDir(sPath As String)
     If Not IOFile.isFolder(sPath) Then
         Call MkDir(sPath)
     End If

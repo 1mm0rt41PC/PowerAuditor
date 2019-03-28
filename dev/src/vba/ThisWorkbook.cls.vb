@@ -36,7 +36,7 @@ Public G_exportToProd As Boolean
 
 Private Sub Workbook_AfterSave(ByVal Success As Boolean)
     If G_SaveAsOnGoing Then Exit Sub
-    Versionning.ExportVisualBasicCode
+    Versionning.exportVisualBasicCode
     Call Common.updateTemplateList
 End Sub
 
@@ -65,7 +65,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
         Next ws
         Application.DisplayAlerts = True
     End If
-    Call CleanUpInvalidExcelRef
+    Call cleanUpInvalidExcelRef
     ' On cleanup la liste des templates
     Range("REPORT_TYPE_LIST").Value2 = ""
 End Sub
@@ -74,9 +74,9 @@ End Sub
 Private Sub Workbook_Open()
     ' On install les pré-requis
     If Not Common.isDevMode() Then
-        If Not IOFile.isFile(Common.PowerAuditorPath() & "\desktop.ini") Then
+        If Not IOFile.isFile(Common.getPowerAuditorPath() & "\desktop.ini") Then
             MsgBox "It seems that the powerauditor dependencies are not installed." & vbNewLine & "The installation of dependencies ( git) and their configurations will start now....", vbOKOnly, "PowerAuditor"
-            Call VBA.CreateObject("WScript.Shell").Run(Common.PowerAuditorPath() & "\install\", 0, False)
+            Call VBA.CreateObject("WScript.Shell").Run(Common.getPowerAuditorPath() & "\install\", 0, False)
         End If
     End If
         
@@ -111,7 +111,7 @@ Sub ExportExcelToWordTemplate(control As Object)
     Call Word.setCCVal(wDoc, "VERSION_DATE", getInfo("VERSION_DATE"))
     Call Word.setCCVal(wDoc, "BEGIN_DATE", getInfo("BEGIN_DATE"))
     Call Word.setCCVal(wDoc, "END_DATE", getInfo("END_DATE"))
-    Call Word.setCCVal(wDoc, "LEVEL", CleaupScoreMesg(getInfo("LEVEL")))
+    Call Word.setCCVal(wDoc, "LEVEL", cleaupScoreMesg(getInfo("LEVEL")))
     Call copyExcelColor2Word(wDoc, "LEVEL", Worksheets("PowerAuditor").Range("LEVEL"))
     Call Word.setCCVal(wDoc, "LEVEL_higlight", "{" & getInfo("LEVEL") & "}")
     Dim aText As Variant: aText = Array(getInfo("LEVEL"))
@@ -139,7 +139,7 @@ End Sub
 
 
 
-Sub GenSynthesis(control As Object)
+Sub genSynthesis(control As Object)
     If MsgBox("Do you want generate the SYTHESIS ?" & vbNewLine & "This action will >>>REMOVE<<< the current SYTHESIS !!!!!!!!", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
@@ -149,7 +149,7 @@ Sub GenSynthesis(control As Object)
 End Sub
 
 
-Sub ExportFinalStaticsDocuments(control As Object)
+Sub exportFinalStaticsDocuments(control As Object)
     If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
@@ -159,7 +159,7 @@ End Sub
 
 
 
-Public Sub toProd(control As Object)
+Public Sub ToProd(control As Object)
     Application.DisplayAlerts = False
     Dim sFilepath As String
         
@@ -172,7 +172,7 @@ Public Sub toProd(control As Object)
         End If
     Next ws
     wb_exp.Sheets(1).Delete
-    sFilepath = Replace(Common.PowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & "-" & Common.getInfo("LANG") & ".xlsm", "\\", "\")
+    sFilepath = Replace(Common.getPowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & "-" & Common.getInfo("LANG") & ".xlsm", "\\", "\")
     Call wb_exp.SaveAs(sFilepath, FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     wb_exp.Close
     
@@ -199,9 +199,9 @@ Public Sub toProd(control As Object)
     Range("REPORT_TYPE_LIST").Value2 = ""
     Range("REPORT_TYPE").Value2 = ""
     
-    Call CleanUpInvalidExcelRef
+    Call cleanUpInvalidExcelRef
     G_SaveAsOnGoing = True
-    Dim sNewPath As String: sNewPath = Replace(Common.PowerAuditorPath() & "\PowerAuditor_", "\\", "\")
+    Dim sNewPath As String: sNewPath = Replace(Common.getPowerAuditorPath() & "\PowerAuditor_", "\\", "\")
     Call ThisWorkbook.SaveAs(sNewPath & "v" & Year(Now) & Month(Now) & Day(Now) & ".xlsm", FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     Call ThisWorkbook.SaveAs(sNewPath & "last.xlsm", FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     G_SaveAsOnGoing = False
@@ -221,8 +221,9 @@ Public Sub FillExcelWithProof(control As Object)
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
 
     Dim COL_ID As Integer: COL_ID = Common.getColLocation(ws, "id")
-    Dim COL_NAME As Integer: COL_NAME = Common.getColLocation(ws, "name")
+    Dim COL_NAME As Integer: COL_NAME = RT.toExportKeyCol
     Dim toImportText As Variant: toImportText = Array("desc", "category", "fixtype", "risk", "fix")
+    Dim LANG As String: LANG = getInfo("LANG")
     Dim i As Integer
     Dim vlnDir As String: vlnDir = ActiveWorkbook.Path & "\vuln\"
     Dim iRow As Integer: iRow = 3
@@ -237,10 +238,10 @@ Public Sub FillExcelWithProof(control As Object)
             ws.Cells(iRow, COL_ID).Value2 = iRow - 2
             ws.Cells(iRow, COL_NAME).Value2 = sFile
             
-            If IOFile.isFile(Common.VulnDBPath(sFile) & "\desc.html") Then
-                sPath = Common.VulnDBPath(sFile)
+            If IOFile.isFile(Common.getVulnDBPath(sFile) & "\" & LANG & "-desc.html") Then
+                sPath = Common.getVulnDBPath(sFile)
                 For i = 0 To UBound(toImportText)
-                    ws.Cells(iRow, Common.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & toImportText(i) & ".html"), Chr(10) & Chr(13))
+                    ws.Cells(iRow, Common.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & LANG & "-" & toImportText(i) & ".html"), Chr(10) & Chr(13))
                 Next i
             End If
             iRow = iRow + 1
@@ -260,27 +261,29 @@ Public Sub ExportVulnToGit(control As Object)
     
     Dim COL_ID As Integer: COL_ID = Common.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = Common.getColLocation(ws, "name")
+    Dim LANG As String: LANG = getInfo("LANG")
     Dim name As String
     Dim sPath As String
-    Dim toExportText As Variant: toExportText = Array("desc", "category", "fixtype", "risk", "fix")
-    Dim toExportHTML As Variant: toExportHTML = Array("descDetails", "fixDetails", "fixDetails")
+    Dim toExportText As Variant: toExportText = RT.getExportFields_TXT
+    Dim toExportHTML As Variant: toExportHTML = RT.getExportFields_HTML
+    Dim toExportKeyCol As Integer: toExportKeyCol = RT.getExportField_KeyColumn(ws)
     Dim i As Integer
     Dim windowStyle As Integer: windowStyle = 0 ' Invisible Window
     Dim waitOnReturn As Boolean: waitOnReturn = True
     Dim wsh As Object: Set wsh = VBA.CreateObject("WScript.Shell")
     If Not IOFile.git("pull") Then Exit Sub
     While ws.Cells(iRow, 1).Value2 <> ""
-        name = ws.Cells(iRow, COL_NAME).Value2
+        name = ws.Cells(iRow, toExportKeyCol).Value2
         If MsgBox("Export >" & name & "< to the GIT ?", vbYesNo + vbQuestion) = vbYes Then
             Debug.Print "Export VULN to GIT: " & name
-            sPath = Common.VulnDBPath(name)
-            Call IOFile.MyMkDir(sPath)
+            sPath = Common.getVulnDBPath(name)
+            Call IOFile.myMkDir(sPath)
             For i = 0 To UBound(toExportText)
-                Call IOFile.fileSetContent(sPath & "\" & toExportText(i) & ".html", ws.Cells(iRow, Common.getColLocation(ws, toExportText(i))).Value2)
+                Call IOFile.fileSetContent(sPath & "\" & LANG & "-" & toExportText(i) & ".html", ws.Cells(iRow, Common.getColLocation(ws, toExportText(i))).Value2)
             Next i
             For i = 0 To UBound(toExportHTML)
                 ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
-                wDoc.SelectContentControlsByTitle("VLN_" & toExportHTML(i) & "_" & ws.Cells(iRow, COL_ID).Value2)(1).Range.ExportFragment sPath & "\" & toExportHTML(i) & ".html", wdFormatFilteredHTML
+                wDoc.SelectContentControlsByTitle("VLN_" & toExportHTML(i) & "_" & ws.Cells(iRow, COL_ID).Value2)(1).Range.ExportFragment sPath & "\" & LANG & "-" & toExportHTML(i) & ".html", wdFormatHTML
             Next i
             If Not IOFile.git("add .") Then Exit Sub
             If Not IOFile.git("commit -am " & Chr(34) & "Update the vulnerability " & Replace(name, Chr(34), "") & Chr(34)) Then Exit Sub

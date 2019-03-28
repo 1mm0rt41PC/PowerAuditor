@@ -19,7 +19,7 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-Public m_return As String
+Public m_return
 
 Public Function getCorp() As String
     Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getCorp")
@@ -36,4 +36,20 @@ End Function
 Public Function getReportFilename(pType As String) As String
     Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getReportFilename", pType)
     getReportFilename = m_return
+End Function
+
+
+Public Function getExportFields_HTML() As Variant
+    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getExportFields_HTML")
+    getExportFields_HTML = m_return
+End Function
+
+Public Function getExportFields_TXT() As Variant
+    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getExportFields_TXT")
+    getExportFields_TXT = m_return
+End Function
+
+Public Function getExportField_KeyColumn(ws As Worksheet) As Integer
+    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getExportField_KeyColumn", ws)
+    getExportField_KeyColumn = m_return
 End Function

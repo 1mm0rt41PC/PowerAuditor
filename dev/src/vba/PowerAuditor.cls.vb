@@ -28,11 +28,11 @@ Option Explicit
 Private Sub Worksheet_Change(ByVal Target As Range)
     If ThisWorkbook.G_exportToProd Then Exit Sub
     If Not Application.Intersect(Range("LANG"), Range(Target.Address)) Is Nothing Or Not Application.Intersect(Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing Then
-        Call Common.LoadExcelSheet
+        Call Common.loadExcelSheet
     End If
     
     If Not Application.Intersect(Range("LEVEL"), Range(Target.Address)) Is Nothing Then
-        Call UpdateLevelCellColor
+        Call updateLevelCellColor
     End If
     
     If Not Application.Intersect(Range("CLIENT"), Range(Target.Address)) Is Nothing Or _

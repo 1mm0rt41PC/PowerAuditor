@@ -17,18 +17,20 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+Private m_isDevMode As Integer
+Private m_getPowerAuditorPath As String
 
 
-Function UFirstLetter(sStr As String) As String
-    UFirstLetter = UCase(Left(sStr, 1)) & LCase(Mid(sStr, 2))
+Function uFirstLetter(sStr As String) As String
+    uFirstLetter = UCase(Left(sStr, 1)) & LCase(Mid(sStr, 2))
 End Function
 
 
-Function CleaupScoreMesg(sStr As String) As String
+Function cleaupScoreMesg(sStr As String) As String
     If InStr(sStr, " - ") Then
         sStr = Split(sStr, " - ")(1)
     End If
-    CleaupScoreMesg = UFirstLetter(sStr)
+    cleaupScoreMesg = uFirstLetter(sStr)
 End Function
 
 
@@ -57,21 +59,32 @@ End Function
 
 
 Public Function isDevMode() As Boolean
-    isDevMode = IOFile.isFolder(getVBAPath())
-End Function
-
-
-Public Function PowerAuditorPath() As String
-    If isDevMode() Then
-        PowerAuditorPath = ThisWorkbook.Path & "\..\"
-    Else
-        PowerAuditorPath = Environ("USERPROFILE") & "\PowerAuditor\"
+    If Common.m_isDevMode <= 0 Then
+        Common.m_isDevMode = IOFile.isFolder(getVBAPath())
+        If Common.m_isDevMode Then
+            Common.m_isDevMode = 1
+        Else
+            Common.m_isDevMode = 2
+        End If
     End If
+    isDevMode = (Common.m_isDevMode = 1)
 End Function
 
 
-Public Function VulnDBPath(name As String) As String
-    VulnDBPath = Common.PowerAuditorPath() & "\VulnDB\" & name
+Public Function getPowerAuditorPath() As String
+    If Common.m_getPowerAuditorPath = "" Then
+        If isDevMode() Then
+            Common.m_getPowerAuditorPath = ThisWorkbook.Path & "\..\"
+        Else
+            Common.m_getPowerAuditorPath = Environ("USERPROFILE") & "\PowerAuditor\"
+        End If
+    End If
+    getPowerAuditorPath = Common.m_getPowerAuditorPath
+End Function
+
+
+Public Function getVulnDBPath(name As String) As String
+    getVulnDBPath = Common.getPowerAuditorPath() & "\VulnDB\" & IOFile.filenameEncode(name)
 End Function
 
 
@@ -80,26 +93,24 @@ Public Function getVBAPath() As String
 End Function
 
 
-
-
-Function ArrayAppendUniq(arr As Variant, val As String) As Variant
+Function arrayAppendUniq(arr As Variant, val As String) As Variant
     Dim i As Integer
     For i = 0 To UBound(arr)
         If arr(i) = val Then
-            ArrayAppendUniq = arr
+            arrayAppendUniq = arr
             Exit Function
         End If
     Next
     ReDim Preserve arr(0 To UBound(arr) + 1) As Variant
     arr(UBound(arr)) = val
-    ArrayAppendUniq = arr
+    arrayAppendUniq = arr
 End Function
 
 
-Public Function DictContains(col As Collection, key As Variant) As Boolean
+Public Function dictContains(col As Collection, key As Variant) As Boolean
     On Error Resume Next
     col (key) ' Just try it. If it fails, Err.Number will be nonzero.
-    DictContains = (Err.Number = 0)
+    dictContains = (Err.Number = 0)
     Err.Clear
 End Function
 
@@ -151,9 +162,6 @@ Public Function isEmptyString(ByVal myStr As String) As Boolean
     myStr = Common.trim(myStr, Chr(10) & Chr(13) & " ")
     isEmptyString = (IsEmpty(myStr) Or myStr = " " Or myStr = vbNewLine Or myStr = vbLf Or myStr = vbCr Or myStr = "")
 End Function
-
-
-
 
 
 Public Function getFromO365(sType As String, Optional bFromO365) As String
@@ -210,21 +218,9 @@ Public Function getFromO365(sType As String, Optional bFromO365) As String
 End Function
 
 
-
-
 Function getInfo(rng As String) As String
     getInfo = ThisWorkbook.Worksheets("PowerAuditor").Range(rng).Value2
 End Function
-
-
-Sub createExcelValidatorList(rng As Range, list As Variant)
-    'Dim MyList As Variant: MyList = Array(1, "toto", 3, 4, 5, 6)
-    With rng.Validation
-        .Delete
-        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, _
-             Operator:=xlBetween, Formula1:=Join(list, ",")
-    End With
-End Sub
 
 
 Sub setReportTypeList(RT As String)
@@ -237,7 +233,7 @@ Sub setReportTypeList(RT As String)
 End Sub
 
 
-Public Sub CleanUpInvalidExcelRef()
+Public Sub cleanUpInvalidExcelRef()
     ' Nétoyage des noms de range
     Dim rangeName As name
     For Each rangeName In ThisWorkbook.Names
@@ -248,7 +244,7 @@ Public Sub CleanUpInvalidExcelRef()
 End Sub
 
 
-Public Sub UpdateLevelCellColor()
+Public Sub updateLevelCellColor()
     Dim rng As Range: Set rng = Range("LEVEL_LIST")
     Dim sLevel As String: sLevel = getInfo("LEVEL")
     Dim i As Integer
@@ -262,7 +258,7 @@ Public Sub UpdateLevelCellColor()
 End Sub
 
 
-Public Sub LoadExcelSheet()
+Public Sub loadExcelSheet()
     Dim RT As String: RT = getInfo("REPORT_TYPE") & "-" & getInfo("LANG")
     If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Application.DisplayAlerts = False
@@ -274,7 +270,7 @@ Public Sub LoadExcelSheet()
         End If
     Next ws
     
-    Dim sPath As String: sPath = PowerAuditorPath() & "\template\" & RT
+    Dim sPath As String: sPath = getPowerAuditorPath() & "\template\" & RT
     If IOFile.isFile(sPath & ".xlsx") Then
         sPath = sPath & ".xlsx"
     ElseIf IOFile.isFile(sPath & ".xlsm") Then
@@ -291,7 +287,7 @@ Public Sub LoadExcelSheet()
         wb.Worksheets(ws.name).Copy after:=ThisWorkbook.Worksheets("PowerAuditor")
     Next ws
     ' Suppression des références invalides
-    Call CleanUpInvalidExcelRef
+    Call cleanUpInvalidExcelRef
     Dim rangeName As name
     ' Copy des Range nommés
     For Each rangeName In wb.Names
@@ -336,7 +332,7 @@ End Function
 
 
 
-Public Function RandomString(Length As Integer)
+Public Function randomString(Length As Integer)
     'PURPOSE: Create a Randomized String of Characters
     'SOURCE: www.TheSpreadsheetGuru.com/the-code-vault
     
@@ -365,7 +361,7 @@ Public Function RandomString(Length As Integer)
     Next x
     
     'Output Randomly Generated String
-    RandomString = str
+    randomString = str
 End Function
 
 
@@ -383,27 +379,27 @@ End Function
 
 
 
-Public Function cleanupFileName(ByVal sFilename As String) As String
+Public Function cleanupFileName(ByVal sFileName As String) As String
     ' Suppression des espaces et \r\n au début du nom de fichier
-    While Left(sFilename, 1) = " " Or Left(sFilename, 1) = vbCr Or Left(sFilename, 1) = vbLf
-        sFilename = Mid(sFilename, 2)
+    While Left(sFileName, 1) = " " Or Left(sFileName, 1) = vbCr Or Left(sFileName, 1) = vbLf
+        sFileName = Mid(sFileName, 2)
     Wend
     ' Suppression de la numérotation
-    While IsNumeric(Left(sFilename, 1))
-        sFilename = Mid(sFilename, 2)
+    While IsNumeric(Left(sFileName, 1))
+        sFileName = Mid(sFileName, 2)
     Wend
     ' Suppression des tirets et des espaces
-    While Left(sFilename, 1) = "." Or Left(sFilename, 1) = "-" Or Left(sFilename, 1) = " "
-        sFilename = Mid(sFilename, 2)
+    While Left(sFileName, 1) = "." Or Left(sFileName, 1) = "-" Or Left(sFileName, 1) = " "
+        sFileName = Mid(sFileName, 2)
     Wend
-    cleanupFileName = sFilename
+    cleanupFileName = sFileName
 End Function
 
 
 Public Function CVSSReader(cvss As String) As String
     'Run a shell command, returning the output as a string
     Dim oWSH As Object: Set oWSH = VBA.CreateObject("WScript.Shell")
-    Dim sTmpFile As String: sTmpFile = Environ("TMP") & "\" & RandomString(10)
+    Dim sTmpFile As String: sTmpFile = Environ("TMP") & "\" & randomString(10)
     oWSH.Run "cmd /c P:\Dev\PowerAuditor\bin\CVSSEditor.exe " & cvss & " > " & sTmpFile, 0, True
     CVSSReader = fileGetContent(sTmpFile)
     Kill sTmpFile
@@ -414,7 +410,7 @@ End Function
 Public Sub updateTemplateList()
     Dim iRow As Integer: iRow = Range("REPORT_TYPE_LIST").Row
     Dim iCol As Integer: iCol = Range("REPORT_TYPE_LIST").Column
-    Dim sPath As String: sPath = Common.PowerAuditorPath() & "\template\"
+    Dim sPath As String: sPath = Common.getPowerAuditorPath() & "\template\"
     Dim ws As Worksheet: Set ws = Worksheets("PowerAuditor")
     Dim pFile: pFile = Dir(sPath & "*.xlsm")
     Dim sTmp As String

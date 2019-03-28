@@ -44,8 +44,8 @@ Public Const wdColorAutomatic = -16777216
 Public Const wdColorBlack = 0
 Public Const wdContentControlRichText = 0
 Public Const wdFormatFilteredHTML = 10
+Public Const wdFormatHTML = 8
 Public Const wdContentControlHidden = 2
-'Public wDoc As Object ' Instance Word
 
 
 '===============================================================================
@@ -157,7 +157,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
                 If cellColor <> ThisWorkbook.G_naturalTableColor1 And cellColor <> ThisWorkbook.G_naturalTableColor2 Then             ' Bleu du tableau
                     .Cells.Item(1).Shading.BackgroundPatternColor = cellColor
                 End If
-                .text = Common.CleaupScoreMesg(ws.Cells(iRow, iCol).Value2)
+                .text = Common.cleaupScoreMesg(ws.Cells(iRow, iCol).Value2)
             End With
         Next
         iCol = iCol + 1
@@ -167,14 +167,15 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     ' On insert les preuves qui proviennent du dossier VULNDB
     Dim toImportHTML As Variant: toImportHTML = Array("descDetails", "fixDetails", "fixDetails")
     Set cc = wDoc.SelectContentControlsByTitle("VLN_exploit_" & id)(1)
+    Dim LANG As String: LANG = getInfo("LANG")
     Dim subCC As Object
-    Dim sPath As String: sPath = Common.VulnDBPath(name)
-    If IOFile.isFile(sPath & "\desc.html") Then
+    Dim sPath As String: sPath = Common.getVulnDBPath(name)
+    If IOFile.isFile(sPath & "\" & LANG & "-desc.html") Then
         For i = 0 To UBound(toImportHTML)
-            If IOFile.isFile(sPath & "\" & toImportHTML(i) & ".html") Then
+            If IOFile.isFile(sPath & "\" & LANG & "-" & toImportHTML(i) & ".html") Then
                 Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & toImportHTML(i) & "_" & id)(1)
                 If Common.isEmptyString(Common.trim(subCC.Range.text, "x")) Then
-                    Call subCC.Range.InsertFile(sPath & "\" & toImportHTML(i) & ".html", , , False, False)
+                    Call subCC.Range.InsertFile(sPath & "\" & LANG & "-" & toImportHTML(i) & ".html", , , False, False)
                 End If
             End If
         Next i
@@ -301,10 +302,10 @@ Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFull
         wrdPic.Range.Paragraphs.Alignment = wdAlignParagraphCenter
         wrdPic.Range.InsertCaption Label:="Figure", title:=" - " & Replace(sLegend, ".png", ""), Position:=wdCaptionPositionBelow
     Else
-        Dim tmpFile As String: tmpFile = Environ("temp") & "\" & RandomString(7) & ".html"
+        Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7) & ".html"
         Dim pygmentize As String: pygmentize = "pygmentize"
-        If IOFile.isFile(Common.PowerAuditorPath() & "\bin\pygmentize.exe") Then
-            pygmentize = Chr(34) & Common.PowerAuditorPath() & "\bin\pygmentize.exe" & Chr(34)
+        If IOFile.isFile(Common.getPowerAuditorPath() & "\bin\pygmentize.exe") Then
+            pygmentize = Chr(34) & Common.getPowerAuditorPath() & "\bin\pygmentize.exe" & Chr(34)
         End If
         Debug.Print "Using pygmentize from: " & pygmentize
         
@@ -386,7 +387,7 @@ End Function
 Public Sub copyExcelColor2Word(wDoc As Object, sTitle As String, rCell As Range)
     Dim lColor As Long: lColor = rCell.DisplayFormat.Interior.color
     Dim ccs: Set ccs = wDoc.SelectContentControlsByTitle(sTitle)
-    Dim sVal As String: sVal = Common.CleaupScoreMesg(rCell.Value2)
+    Dim sVal As String: sVal = Common.cleaupScoreMesg(rCell.Value2)
     Dim i As Integer
     For i = 1 To ccs.Count
         If ccs(1).Range.Cells.Count = 1 Then
