@@ -36,3 +36,4 @@ Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean
         Cancel = True
     End If
 End Sub
+
