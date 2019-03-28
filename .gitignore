@@ -6,3 +6,4 @@ dev/src/vba/RT_*.cls.vb
 *.docx
 *.docm
 desktop.ini
+config.ini
