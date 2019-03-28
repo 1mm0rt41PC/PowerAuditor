@@ -16,15 +16,29 @@
 # along with this program; see the file COPYING. If not, write to the
 # Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-[void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") 
-$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email", "GIT configuration")
-$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name (ie: NUEL Guillaume)", "GIT configuration")
-git config --global user.name $pseudo
-git config --global user.email $email
+# We ask for the user identity
+if( (Get-ChildItem $env:USERPROFILE\PowerAuditor\config.ini -ErrorAction SilentlyContinue).Count -eq 0 ){
+	[void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") 
+	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email", "GIT configuration")
+	$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name (ie: NUEL Guillaume)", "GIT configuration")
+	git config --global user.name $pseudo
+	git config --global user.email $email
 
-echo "FriendlyName=$pseudo" | Out-File -FilePath $env:USERPROFILE\PowerAuditor\config.ini -Encoding ascii
-echo "EmailAddress=$email" | Out-File -Append -FilePath $env:USERPROFILE\PowerAuditor\config.ini -Encoding ascii
+	echo "FriendlyName=$pseudo" | Out-File -Encoding ascii $env:USERPROFILE\PowerAuditor\config.ini
+	echo "EmailAddress=$email" | Out-File -Encoding ascii -Append $env:USERPROFILE\PowerAuditor\config.ini
+}
 
+# White list git host to avoid error "unknown host key"
+mkdir $env:USERPROFILE\.ssh -ErrorAction SilentlyContinue
+Get-ChildItem .. -Recurse -Force | where {  $_.FullName.Contains(".git\config") } | foreach {
+	$tmp=cat $_.Fullname;
+	$rx = [regex]::Match($tmp, "url = [a-z]+@([^:\r\n]+)");
+	if( $rx.Success -eq $false ){
+		$rx = [regex]::Match($tmp, "url = https?://([^/:\r\n]+)");
+	}
+	$rx = $rx.Captures.Groups[1].Value
+	ssh-keyscan $rx | Out-File -Encoding ascii -Append $env:USERPROFILE\.ssh\known_hosts
+}
 
 if( [System.IO.File]::Exists('C:\Program Files\Git\bin\git.exe') ){
 	Write-Host "Git allready installed"
@@ -45,5 +59,5 @@ if( -not [System.IO.File]::Exists('C:\ProgramData\chocolatey\bin\choco.exe') ){
 
 # Install git
 choco install git.install --force -y
-# Requis pour ActiveWorkbook.VBProject.VBComponents
+# Required for ActiveWorkbook.VBProject.VBComponents
 reg ADD HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security /v AccessVBOM /t REG_DWORD /d 1 /f

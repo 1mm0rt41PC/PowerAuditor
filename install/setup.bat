@@ -15,10 +15,9 @@
 :: You should have received a copy of the GNU General Public License
 :: along with this program; see the file COPYING. If not, write to the
 :: Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
+set scriptpath=%~dp0
+set scriptpath=%scriptpath:~0,-1%
 set DST=%userprofile%\PowerAuditor
-::mkdir %DST% 2>NUL
-::copy * %DST%
 echo [.ShellClassInfo]     > %DST%\desktop.txt
 echo ConfirmFileOp=0      >> %DST%\desktop.txt
 echo NoSharing=1          >> %DST%\desktop.txt
@@ -36,6 +35,9 @@ attrib -S -H -R %DST%\desktop.ini 2>NUL
 cmd.exe /D /U /C type %DST%\desktop.txt > %DST%\desktop.ini
 del /q %DST%\desktop.txt
 attrib +S +H +R %DST%\desktop.ini
-taskkill -im explorer.exe /f >nul&start explorer
-::pause
-powershell -exec bypass -nop -File "%DST%\install\wrapper.ps1"
+
+powershell -exec bypass -nop -File "%scriptpath%\wrapper.ps1"
+
+:: Restart explorer.exe
+taskkill -im explorer.exe /f >nul
+start explorer
