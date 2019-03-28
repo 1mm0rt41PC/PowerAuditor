@@ -201,8 +201,9 @@ Public Sub toProd(control As Object)
     
     Call CleanUpInvalidExcelRef
     G_SaveAsOnGoing = True
-    Call ThisWorkbook.SaveAs(Replace(Common.PowerAuditorPath() & "\PowerAuditor_v" & Year(Now) & Month(Now) & Day(Now) & ".xlsm", "\\", "\"), FileFormat:=xlOpenXMLWorkbookMacroEnabled)
-    Call ThisWorkbook.SaveAs(Replace(Common.PowerAuditorPath() & "\PowerAuditor_last.xlsm", "\\", "\"), FileFormat:=xlOpenXMLWorkbookMacroEnabled)
+    Dim sNewPath As String: sNewPath = Replace(Common.PowerAuditorPath() & "\PowerAuditor_", "\\", "\")
+    Call ThisWorkbook.SaveAs(sNewPath & "v" & Year(Now) & Month(Now) & Day(Now) & ".xlsm", FileFormat:=xlOpenXMLWorkbookMacroEnabled)
+    Call ThisWorkbook.SaveAs(sNewPath & "last.xlsm", FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     G_SaveAsOnGoing = False
     Call ThisWorkbook.Application.Workbooks.Open(sFilepath)
     Application.DisplayAlerts = True
