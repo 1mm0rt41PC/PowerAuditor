@@ -275,9 +275,6 @@ End Sub
 ' @return [NONE]
 '
 Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFullpath As String, ByVal sLegend As String)
-    Dim waitOnReturn As Boolean: waitOnReturn = True
-    Dim windowStyle As Integer: windowStyle = 0
-    
     ' Création du ContentControl
     Dim cc: Set cc = Common.selectCCInCC(ccExploit.Range, Replace(sFullpath, wDoc.Path, ""))
     If cc Is Nothing Then
@@ -309,8 +306,7 @@ Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFull
         End If
         Debug.Print "Using pygmentize from: " & pygmentize
         
-        Dim wsh As Object: Set wsh = VBA.CreateObject("WScript.Shell")
-        wsh.Run pygmentize & " -f html -l " & IOFile.getFileExt(sFullpath) & " -O full,noclasses,style=monokai -o " & Chr(34) & tmpFile & Chr(34) & " " & Chr(34) & sFullpath & Chr(34), windowStyle, waitOnReturn
+        Call IOFile.runCmd(pygmentize & " -f html -l " & IOFile.getFileExt(sFullpath) & " -O full,noclasses,style=monokai -o " & Chr(34) & tmpFile & Chr(34) & " " & Chr(34) & sFullpath & Chr(34), 0, True)
         If Not IOFile.isFile(tmpFile) Then ' Si pygmentize n'est pas trouvé ou en cas d'erreur => utilisation du fichier original
             tmpFile = sFullpath
             Debug.Print "pygmentize Failed !"

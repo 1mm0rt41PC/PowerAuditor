@@ -37,7 +37,3 @@ del /q %DST%\desktop.txt
 attrib +S +H +R %DST%\desktop.ini
 
 powershell -exec bypass -nop -File "%scriptpath%\wrapper.ps1"
-
-:: Restart explorer.exe
-taskkill -im explorer.exe /f >nul
-start explorer

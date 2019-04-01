@@ -165,9 +165,6 @@ End Function
 
 
 Public Function getFromO365(sType As String, Optional bFromO365) As String
-    Dim wsh As Object: Set wsh = VBA.CreateObject("WScript.Shell")
-    Dim waitOnReturn As Boolean: waitOnReturn = True
-    Dim windowStyle As Integer: windowStyle = 0
     Dim iFileNum As Integer
     Dim sDataLine As String
     Dim sFilepath As String
@@ -181,7 +178,7 @@ Public Function getFromO365(sType As String, Optional bFromO365) As String
     
     If bFromO365 Then
         Call IOFile.removeFile(Environ("tmp") & "\O365.tmp")
-        wsh.Run "reg export HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity\Identities %tmp%\O365.tmp /y", windowStyle, waitOnReturn
+        Call IOFile.runCmd("reg export HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity\Identities %tmp%\O365.tmp /y", 0, True)
         sFilepath = Environ("tmp") & "\O365.tmp"
     Else
         sFilepath = Environ("USERPROFILE") & "\PowerAuditor\config.ini"
@@ -397,14 +394,11 @@ End Function
 
 
 Public Function CVSSReader(cvss As String) As String
-    'Run a shell command, returning the output as a string
-    Dim oWSH As Object: Set oWSH = VBA.CreateObject("WScript.Shell")
     Dim sTmpFile As String: sTmpFile = Environ("TMP") & "\" & randomString(10)
-    oWSH.Run "cmd /c P:\Dev\PowerAuditor\bin\CVSSEditor.exe " & cvss & " > " & sTmpFile, 0, True
+    Call IOFile.runCmd("cmd /c " & Common.getPowerAuditorPath() & "\bin\CVSSEditor.exe " & cvss & " > " & sTmpFile, 0, True)
     CVSSReader = fileGetContent(sTmpFile)
-    Kill sTmpFile
+    Call IOFile.removeFile(sTmpFile)
 End Function
-
 
 
 Public Sub updateTemplateList()

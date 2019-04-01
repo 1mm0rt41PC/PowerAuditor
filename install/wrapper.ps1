@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; see the file COPYING. If not, write to the
 # Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+[void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") 
 
 # We ask for the user identity
 if( (Get-ChildItem $env:USERPROFILE\PowerAuditor\config.ini -ErrorAction SilentlyContinue).Count -eq 0 ){
-	[void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") 
-	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email", "GIT configuration")
-	$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name (ie: NUEL Guillaume)", "GIT configuration")
-	git config --global user.name $pseudo
-	git config --global user.email $email
-
+	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email for reports", "Office356 configuration")
+	$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name for reports (ie: NUEL Guillaume)", "Office356 configuration")
 	echo "FriendlyName=$pseudo" | Out-File -Encoding ascii $env:USERPROFILE\PowerAuditor\config.ini
 	echo "EmailAddress=$email" | Out-File -Encoding ascii -Append $env:USERPROFILE\PowerAuditor\config.ini
 }
@@ -45,29 +42,37 @@ echo '
 	},
 	"tutorial": true,
 	"cwd": "%USERPROFILE%\\PowerAuditor\\vulndb\\.notable"
-}'.Replace('%USERPROFILE%',($env:USERPROFILE).Replace("\", "\\") | Out-File -Encoding ascii $env:USERPROFILE\.notable.json
+}'.Replace('%USERPROFILE%',($env:USERPROFILE).Replace("\", "\\")) | Out-File -Encoding ascii $env:USERPROFILE\.notable.json
 
 
 # White list git host to avoid error "unknown host key"
 mkdir $env:USERPROFILE\.ssh -ErrorAction SilentlyContinue
-Get-ChildItem .. -Recurse -Force | where {  $_.FullName.Contains(".git\config") } | foreach {
+Get-ChildItem $env:USERPROFILE\PowerAuditor -Recurse -Force | where {  $_.FullName.Contains(".git\config") } | foreach {
 	$tmp=cat $_.Fullname;
 	$rx = [regex]::Match($tmp, "url = [a-z]+@([^:\r\n]+)");
 	if( $rx.Success -eq $false ){
 		$rx = [regex]::Match($tmp, "url = https?://([^/:\r\n]+)");
 	}
 	$rx = $rx.Captures.Groups[1].Value
-	ssh-keyscan $rx | Out-File -Encoding ascii -Append $env:USERPROFILE\.ssh\known_hosts
+	& $env:USERPROFILE\PowerAuditor\install\ssh-keyscan.exe $rx | Out-File -Encoding ascii -Append $env:USERPROFILE\.ssh\known_hosts
 }
 
-if( [System.IO.File]::Exists('C:\Program Files\Git\bin\git.exe') ){
-	Write-Host "Git allready installed"
-	exit
-}
+#if( [System.IO.File]::Exists('C:\Program Files\Git\bin\git.exe') ){
+#	Write-Host "Git allready installed"
+#	# We ask for the user identity
+#	if( (Get-ChildItem $env:USERPROFILE\.gitconfig -ErrorAction SilentlyContinue).Count -eq 0 ){
+#		$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email for GIT", "GIT configuration")
+#		$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name for GIT (ie: NUEL Guillaume)", "GIT configuration")
+#		git config --global user.name $pseudo
+#		git config --global user.email $email
+#	}
+#	exit
+#}
 
 # Elevate to Admin
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
+	$proc = Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
+	Wait-Process -InputObject $proc
 	exit
 }
 
@@ -85,3 +90,13 @@ mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\notes -ErrorAction SilentlyC
 mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\attachments -ErrorAction SilentlyContinue
 # Required for ActiveWorkbook.VBProject.VBComponents
 reg ADD HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security /v AccessVBOM /t REG_DWORD /d 1 /f
+
+# We ask for the user identity
+if( (Get-ChildItem $env:USERPROFILE\.gitconfig -ErrorAction SilentlyContinue).Count -eq 0 ){
+	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email for GIT", "GIT configuration")
+	$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name for GIT (ie: NUEL Guillaume)", "GIT configuration")
+	git config --global user.name $pseudo
+	git config --global user.email $email
+}
+
+cmd /c mklink $env:USERPROFILE\Desktop\PowerAuditor.xlsm $env:USERPROFILE\PowerAuditor\PowerAuditor_last.xlsm

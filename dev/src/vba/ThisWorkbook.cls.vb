@@ -76,7 +76,7 @@ Private Sub Workbook_Open()
     If Not Common.isDevMode() Then
         If Not IOFile.isFile(Common.getPowerAuditorPath() & "\desktop.ini") Then
             MsgBox "It seems that the powerauditor dependencies are not installed." & vbNewLine & "The installation of dependencies ( git) and their configurations will start now....", vbOKOnly, "PowerAuditor"
-            Call VBA.CreateObject("WScript.Shell").Run(Common.getPowerAuditorPath() & "\install\", 0, False)
+            Call IOFile.runCmd(Common.getPowerAuditorPath() & "\install\setup.bat", 1, True)
         End If
     End If
         
@@ -268,9 +268,6 @@ Public Sub ExportVulnToGit(control As Object)
     Dim toExportHTML As Variant: toExportHTML = RT.getExportFields_HTML
     Dim toExportKeyCol As Integer: toExportKeyCol = RT.getExportField_KeyColumn(ws)
     Dim i As Integer
-    Dim windowStyle As Integer: windowStyle = 0 ' Invisible Window
-    Dim waitOnReturn As Boolean: waitOnReturn = True
-    Dim wsh As Object: Set wsh = VBA.CreateObject("WScript.Shell")
     If Not IOFile.git("pull") Then Exit Sub
     While ws.Cells(iRow, 1).Value2 <> ""
         name = ws.Cells(iRow, toExportKeyCol).Value2

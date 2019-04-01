@@ -120,21 +120,11 @@ End Function
 
 
 
-Public Function git(sArgs As String, Optional sRepo As String = "vulndb", Optional iRecurs As Integer = 5) As Boolean
+Public Function git(sArgs As String, Optional sRepo As String = "vulndb") As Boolean
     Debug.Print "Git " & sArgs & " on <" & sRepo & ">"
     Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7)
     Dim ret As String
-    If iRecurs <= 0 Then
-        MsgBox "Git is not installed or not initialised !?", vbOKOnly, "PowerAuditor"
-        git = ""
-        Exit Function
-    End If
-    If G_oWSH Is Nothing Then
-        Set G_oWSH = VBA.CreateObject("WScript.Shell")
-    End If
-    On Error GoTo reloadWSH
-    G_oWSH.Run Common.getPowerAuditorPath() & "\" & sRepo & "_git.bat " & tmpFile & " " & sArgs, 0, True
-    On Error GoTo 0
+    Call runCmd(Common.getPowerAuditorPath() & "\" & sRepo & "_git.bat " & tmpFile & " " & sArgs, 0, True)
     ret = Common.trim(fileGetContent(tmpFile & ".ret"))
     If ret <> "0" Then
         ret = Common.trim(fileGetContent(tmpFile & ".log"))
@@ -150,11 +140,6 @@ Public Function git(sArgs As String, Optional sRepo As String = "vulndb", Option
     ' Then delete the file
     removeFile tmpFile & ".ret"
     removeFile tmpFile & ".log"
-    Exit Function
-reloadWSH:
-    On Error GoTo 0
-    Set G_oWSH = Nothing
-    git = git(sArgs, sRepo, iRecurs - 1)
 End Function
 
 
@@ -205,15 +190,48 @@ Public Function myMkDir(sPath As String)
     End If
 End Function
 
+' Run sCmd in a cmd.exe prompt and return the return_code (%ERROR_LEVEL%)
+Public Function runCmd(sCmd As String, Optional iWindowStyle As Integer = 0, Optional bWaitOnReturn As Boolean = True) As Integer
+    Dim ret As Integer
+    If G_oWSH Is Nothing Then
+        Set G_oWSH = VBA.CreateObject("WScript.Shell")
+    End If
+    On Error GoTo err_runCmd
+    ret = G_oWSH.Run(sCmd, iWindowStyle, bWaitOnReturn)
+    On Error GoTo 0
+    runCmd = ret
+    Exit Function
+
+err_runCmd:
+    On Error GoTo 0
+    Set G_oWSH = VBA.CreateObject("WScript.Shell")
+    ret = G_oWSH.Run(sCmd, iWindowStyle, bWaitOnReturn)
+    runCmd = ret
+    Exit Function
+End Function
+
 
 Public Function getOutpoutFromShellCmd(sCmd As String) As String
     'Run a shell command, returning the output as a string
-    Dim oShell As Object: Set oShell = CreateObject("WScript.Shell")
+    If G_oWSH Is Nothing Then
+        Set G_oWSH = VBA.CreateObject("WScript.Shell")
+    End If
     Dim oExec As Object
     Dim oOutput As Object
     
-    Set oExec = oShell.Exec(sCmd)
+    On Error GoTo err_getOutpoutFromShellCmd
+    Set oExec = G_oWSH.Exec(sCmd)
     Set oOutput = oExec.StdOut
+    On Error GoTo 0
+    GoTo readStdout_getOutpoutFromShellCmd
+    
+err_getOutpoutFromShellCmd:
+    Set G_oWSH = VBA.CreateObject("WScript.Shell")
+    Set oExec = G_oWSH.Exec(sCmd)
+    Set oOutput = oExec.StdOut
+    On Error GoTo 0
+
+readStdout_getOutpoutFromShellCmd:
 
     'handle the results as they are written to and read from the StdOut object
     Dim s As String
@@ -222,5 +240,5 @@ Public Function getOutpoutFromShellCmd(sCmd As String) As String
         sLine = oOutput.ReadLine
         If sLine <> "" Then s = s & sLine & vbCrLf
     Wend
-    ShellRun = s
+    getOutpoutFromShellCmd = s
 End Function
