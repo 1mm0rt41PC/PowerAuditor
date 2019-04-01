@@ -87,6 +87,10 @@ Public Function getVulnDBPath(name As String) As String
     getVulnDBPath = Common.getPowerAuditorPath() & "\VulnDB\" & IOFile.filenameEncode(name)
 End Function
 
+Public Function getNotableFile(name As String) As String
+    getNotableFile = Common.getPowerAuditorPath() & "\VulnDB\.notable\notes\" & IOFile.filenameEncode(name) & ".md"
+End Function
+
 
 Public Function getVBAPath() As String
     getVBAPath = ThisWorkbook.Path & "\src\vba\"

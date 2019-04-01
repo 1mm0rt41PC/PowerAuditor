@@ -221,7 +221,7 @@ Public Sub FillExcelWithProof(control As Object)
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
 
     Dim COL_ID As Integer: COL_ID = Common.getColLocation(ws, "id")
-    Dim COL_NAME As Integer: COL_NAME = RT.toExportKeyCol
+    Dim COL_NAME As Integer: COL_NAME = RT.getExportField_KeyColumn(ws)
     Dim toImportText As Variant: toImportText = Array("desc", "category", "fixtype", "risk", "fix")
     Dim LANG As String: LANG = getInfo("LANG")
     Dim i As Integer
@@ -282,6 +282,19 @@ Public Sub ExportVulnToGit(control As Object)
                 ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
                 wDoc.SelectContentControlsByTitle("VLN_" & toExportHTML(i) & "_" & ws.Cells(iRow, COL_ID).Value2)(1).Range.ExportFragment sPath & "\" & LANG & "-" & toExportHTML(i) & ".html", wdFormatHTML
             Next i
+            sPath = Common.getNotableFile(name)
+            If Not IOFile.isFile(sPath) Then
+                Call IOFile.fileSetContent(sPath, "---" & _
+                "title: " & name & vbLf & _
+                "created: '2019-04-01T12:32:05.399Z'" & vbLf & _
+                "modified: '2019-04-01T12:34:53.873Z'" & vbLf & _
+                "tags: [Pentest/Fiche de vuln/A trier/]" & vbLf & _
+                "---" & vbLf & _
+                "" & vbLf & _
+                "# 1. OSINT" & vbLf & _
+                "" & vbLf & _
+                "" & vbLf)
+            End If
             If Not IOFile.git("add .") Then Exit Sub
             If Not IOFile.git("commit -am " & Chr(34) & "Update the vulnerability " & Replace(name, Chr(34), "") & Chr(34)) Then Exit Sub
         End If
@@ -290,3 +303,4 @@ Public Sub ExportVulnToGit(control As Object)
     If Not IOFile.git("push -u origin master") Then Exit Sub
     MsgBox "Export done"
 End Sub
+

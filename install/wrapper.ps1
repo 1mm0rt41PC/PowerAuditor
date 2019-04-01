@@ -71,8 +71,7 @@ Get-ChildItem $env:USERPROFILE\PowerAuditor -Recurse -Force | where {  $_.FullNa
 
 # Elevate to Admin
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-	$proc = Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
-	Wait-Process -InputObject $proc
+	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs;
 	exit
 }
 
