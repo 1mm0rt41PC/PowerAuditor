@@ -2,11 +2,11 @@
 ![](https://raw.githubusercontent.com/1mm0rt41PC/PowerAuditor/master/bin/logo.png) Powered by  [![Excel o365](https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Microsoft_Office_Excel_%282013%E2%80%93present%29.svg/101px-Microsoft_Office_Excel_%282013%E2%80%93present%29.svg.png)](https://www.office.com)
 
 # Presentation
-PowerAuditor is an excel sheet over-vitaminated with macro. PowerAuditor allows you :
-- to write Pentest reports in a minimum of time.
-- to no longer write the same information twice
+PowerAuditor is an excel sheet over-vitaminated with macro. PowerAuditor allows you to :
+- write Pentest reports in a minimum of time.
+- no longer write the same information twice
 - share your vulnerability sheets with your co-worker via a git server
-- to share your knowledge with your team via a git server
+- share your knowledge with your team via a git server
 
 # First install for the infrastructure
 Require:
@@ -37,13 +37,41 @@ C:\Users\1mm0rt41PC\PowerAuditor\template> git remote add origin yyyy@yyyy.fr:xx
 C:\Users\1mm0rt41PC\PowerAuditor\template> git push -u origin master
 ```
 
+# Install for end users
+```
+# Install all tools
+Set-ExecutionPolicy Bypass -Scope Process -Force;
+iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+choco install git.install -y
+choco install notable -y
+New-Alias git "C:\Program Files\Git\bin\git.exe"
+git clone https://github.com/1mm0rt41PC/PowerAuditor.git $env:USERPROFILE\PowerAuditor
+
+# Install all templates from YOUR GIT REPOSITITORY
+git init $env:USERPROFILE\PowerAuditor\template
+cd $env:USERPROFILE\PowerAuditor\template
+git remote add origin xxx@xxxx.fr:xxxx/myRepo-for-template.git
+git pull
+git reset --hard origin/master
+
+# Installation de la bdd
+git init $env:USERPROFILE\PowerAuditor\vulndb
+cd $env:USERPROFILE\PowerAuditor\vulndb
+git remote add origin yyy@yyyy.fr:xxxx/myRepo-for-vuln.git
+git pull
+git reset --hard origin/master
+
+# Finalisation de l'installation
+cmd /c $env:USERPROFILE\PowerAuditor\install\setup.bat
+```
+
 # Usage
-1) Copy the `PowerAuditor_last.xlsm` in your pentest project.
+1) Copy the `PowerAuditor.xlsm` from your desktop to your pentest project.
 2) Create a folder `vuln` forlder and create a subfolder for each vulnerability
 
 ```
 .
-├── PowerAuditor_last.xlsm
+├── PowerAuditor.xlsm
 └── vuln
     ├── Citrix vulnerable to IKEExt
     │   ├── proof 1.png
@@ -55,7 +83,7 @@ C:\Users\1mm0rt41PC\PowerAuditor\template> git push -u origin master
         └── proof.png
 ```
 
-3) Run `PowerAuditor_last.xlsm` and enable macro
+3) Run `PowerAuditor.xlsm` and enable macro
 4) Select a `Report type` and a Language
 5) Go in the new sheet (ie: Example_v1-EN)
 6) In the ribbon tab `PowerAuditor`, click on `Fill excel with proof` to fill the the excel with all vuln from the folder `vuln`.
