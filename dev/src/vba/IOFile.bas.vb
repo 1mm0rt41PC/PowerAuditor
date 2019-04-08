@@ -19,6 +19,7 @@ Option Explicit
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 Dim G_oWSH As Object
+Private m_getPowerAuditorPath As String
 
 
 Public Function filenameEncode(sFileName As String) As String
@@ -124,7 +125,7 @@ Public Function git(sArgs As String, Optional sRepo As String = "vulndb") As Boo
     Debug.Print "Git " & sArgs & " on <" & sRepo & ">"
     Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7)
     Dim ret As String
-    Call runCmd(Common.getPowerAuditorPath() & "\" & sRepo & "_git.bat " & tmpFile & " " & sArgs, 0, True)
+    Call runCmd(IOFile.getPowerAuditorPath() & "\" & sRepo & "_git.bat " & tmpFile & " " & sArgs, 0, True)
     ret = Common.trim(fileGetContent(tmpFile & ".ret"))
     If ret <> "0" Then
         ret = Common.trim(fileGetContent(tmpFile & ".log"))
@@ -241,4 +242,31 @@ readStdout_getOutpoutFromShellCmd:
         If sLine <> "" Then s = s & sLine & vbCrLf
     Wend
     getOutpoutFromShellCmd = s
+End Function
+
+
+Public Function getPowerAuditorPath() As String
+    If IOFile.m_getPowerAuditorPath = "" Then
+        If isDevMode() Then
+            IOFile.m_getPowerAuditorPath = ThisWorkbook.Path & "\..\"
+        Else
+            IOFile.m_getPowerAuditorPath = Environ("USERPROFILE") & "\PowerAuditor\"
+        End If
+    End If
+    getPowerAuditorPath = IOFile.m_getPowerAuditorPath
+End Function
+
+
+Public Function getVulnDBPath(name As String) As String
+    getVulnDBPath = IOFile.getPowerAuditorPath() & "\VulnDB\" & IOFile.filenameEncode(name)
+End Function
+
+
+Public Function getNotableFile(name As String) As String
+    getNotableFile = IOFile.getPowerAuditorPath() & "\VulnDB\.notable\notes\" & IOFile.filenameEncode(name) & ".md"
+End Function
+
+
+Public Function getVBAPath() As String
+    getVBAPath = ThisWorkbook.Path & "\src\vba\"
 End Function

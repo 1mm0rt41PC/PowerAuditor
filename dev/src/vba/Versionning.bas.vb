@@ -32,7 +32,7 @@ Public Sub exportVisualBasicCode()
     
     Dim VBComponent As Object
     Dim Path As String
-    Dim sPath As String: sPath = Common.getVBAPath
+    Dim sPath As String: sPath = IOFile.getVBAPath
     Dim extension As String
     Dim REPORT_TYPE As String
 
@@ -81,7 +81,7 @@ Public Static Sub VBAFromCommonSrc()
     Dim sData As String
     Dim pos
     Dim fso As Object: Set fso = CreateObject("Scripting.FileSystemObject")
-    Dim sPath As String: sPath = Common.getVBAPath
+    Dim sPath As String: sPath = IOFile.getVBAPath
     Dim sModuleName As String
     Dim REPORT_TYPE As String
 
@@ -139,7 +139,7 @@ End Function
 
 
 Public Sub loadModule(sModuleName As String)
-    'Dim sModuleName As String: sModuleName = "Example_v1"
+    If Not Common.isDevMode() Then Exit Sub
     Dim sPath As String: sPath = getVBAPath
     Dim pFile: pFile = Dir(sPath & "\RT_" & sModuleName & ".*")
     Dim pos

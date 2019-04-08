@@ -169,7 +169,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Set cc = wDoc.SelectContentControlsByTitle("VLN_exploit_" & id)(1)
     Dim LANG As String: LANG = getInfo("LANG")
     Dim subCC As Object
-    Dim sPath As String: sPath = Common.getVulnDBPath(name)
+    Dim sPath As String: sPath = IOFile.getVulnDBPath(name)
     If IOFile.isFile(sPath & "\" & LANG & "-desc.html") Then
         For i = 0 To UBound(toImportHTML)
             If IOFile.isFile(sPath & "\" & LANG & "-" & toImportHTML(i) & ".html") Then
@@ -200,7 +200,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
         If pFile <> "." And pFile <> ".." And IOFile.isFolder(sFullpath) Then
             Set oFilesList = oFSO.GetFolder(sFullpath).Files
             
-            Set subCC = Common.selectCCInCC(cc.Range, Replace(sFullpath, wDoc.Path, ""))
+            Set subCC = Word.selectCCInCC(cc.Range, Replace(sFullpath, wDoc.Path, ""))
             If subCC Is Nothing Then
                 cc.Range.InsertParagraphAfter
                 cc.Range.InsertParagraphAfter
@@ -276,7 +276,7 @@ End Sub
 '
 Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFullpath As String, ByVal sLegend As String)
     ' Création du ContentControl
-    Dim cc: Set cc = Common.selectCCInCC(ccExploit.Range, Replace(sFullpath, wDoc.Path, ""))
+    Dim cc: Set cc = Word.selectCCInCC(ccExploit.Range, Replace(sFullpath, wDoc.Path, ""))
     If cc Is Nothing Then
         ccExploit.Range.InsertParagraphAfter
         ccExploit.Range.InsertParagraphAfter
@@ -301,8 +301,8 @@ Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFull
     Else
         Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7) & ".html"
         Dim pygmentize As String: pygmentize = "pygmentize"
-        If IOFile.isFile(Common.getPowerAuditorPath() & "\bin\pygmentize.exe") Then
-            pygmentize = Chr(34) & Common.getPowerAuditorPath() & "\bin\pygmentize.exe" & Chr(34)
+        If IOFile.isFile(IOFile.getPowerAuditorPath() & "\bin\pygmentize.exe") Then
+            pygmentize = Chr(34) & IOFile.getPowerAuditorPath() & "\bin\pygmentize.exe" & Chr(34)
         End If
         Debug.Print "Using pygmentize from: " & pygmentize
         
@@ -326,7 +326,7 @@ Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFull
         End If
     
         ' Ajout de la legende
-        Call Common.trimContentControl(cc)
+        Call Word.trimContentControl(cc)
         'If Not isEmptyString(wDoc.Range(cc.Range.End - 1, cc.Range.End).Text) Then
         '    cc.Range.InsertParagraphAfter
         'End If
@@ -337,7 +337,7 @@ Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFull
             .Paragraphs.Alignment = wdAlignParagraphCenter
         End With
     End If
-    Call trimContentControl(cc)
+    Call Word.trimContentControl(cc)
 End Sub
 
 
@@ -348,7 +348,7 @@ End Sub
 ' @param[in] {String} sVal:             Text to put in the ContentControl
 ' @return [NONE]
 '
-Public Sub setCCVal(wDoc As Object, sTitle As String, sVal As String)
+Public Sub setCCVal(wDoc As Object, sTitle As String, ByVal sVal As String)
     Dim i As Integer
     Dim ccs: Set ccs = wDoc.SelectContentControlsByTitle(sTitle)
     For i = 1 To ccs.Count
@@ -507,6 +507,33 @@ Public Sub removeAllContentControls(wAd)
     Dim ccs As Object: Set ccs = wAd.ContentControls
     While ccs.Count > 0
         ccs.Item(1).Delete False
+    Wend
+End Sub
+
+
+Function selectCCInCC(oWRange As Object, sTitle As String) As Object
+    Dim i As Integer
+    For i = 1 To oWRange.ContentControls.Count
+        If oWRange.ContentControls(i).title = sTitle Then
+            Set selectCCInCC = oWRange.ContentControls(i)
+            Exit Function
+        End If
+    Next
+    Set selectCCInCC = Nothing
+End Function
+
+Public Sub trimContentControl(cc)
+    Dim found As Boolean: found = True
+    Dim wDoc: Set wDoc = cc.Range.Document
+    Dim rng, rng2, rng3
+    While found
+        Set rng = wDoc.Range(cc.Range.End - 1, cc.Range.End)
+        Set rng2 = wDoc.Range(cc.Range.End - 2, cc.Range.End)
+        If isEmptyString(rng.text) And isEmptyString(rng2.text) Then
+            rng.text = ""
+        Else
+            found = False
+        End If
     Wend
 End Sub
 

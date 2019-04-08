@@ -18,7 +18,6 @@ Option Explicit
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Private m_isDevMode As Integer
-Private m_getPowerAuditorPath As String
 
 
 Function uFirstLetter(sStr As String) As String
@@ -71,32 +70,6 @@ Public Function isDevMode() As Boolean
 End Function
 
 
-Public Function getPowerAuditorPath() As String
-    If Common.m_getPowerAuditorPath = "" Then
-        If isDevMode() Then
-            Common.m_getPowerAuditorPath = ThisWorkbook.Path & "\..\"
-        Else
-            Common.m_getPowerAuditorPath = Environ("USERPROFILE") & "\PowerAuditor\"
-        End If
-    End If
-    getPowerAuditorPath = Common.m_getPowerAuditorPath
-End Function
-
-
-Public Function getVulnDBPath(name As String) As String
-    getVulnDBPath = Common.getPowerAuditorPath() & "\VulnDB\" & IOFile.filenameEncode(name)
-End Function
-
-Public Function getNotableFile(name As String) As String
-    getNotableFile = Common.getPowerAuditorPath() & "\VulnDB\.notable\notes\" & IOFile.filenameEncode(name) & ".md"
-End Function
-
-
-Public Function getVBAPath() As String
-    getVBAPath = ThisWorkbook.Path & "\src\vba\"
-End Function
-
-
 Function arrayAppendUniq(arr As Variant, val As String) As Variant
     Dim i As Integer
     For i = 0 To UBound(arr)
@@ -144,22 +117,6 @@ Public Function trim(myStr As String, Optional rmChar As String) As String
     Wend
     trim = myStr
 End Function
-
-
-Public Sub trimContentControl(cc)
-    Dim found As Boolean: found = True
-    Dim wDoc: Set wDoc = cc.Range.Document
-    Dim rng, rng2, rng3
-    While found
-        Set rng = wDoc.Range(cc.Range.End - 1, cc.Range.End)
-        Set rng2 = wDoc.Range(cc.Range.End - 2, cc.Range.End)
-        If isEmptyString(rng.text) And isEmptyString(rng2.text) Then
-            rng.text = ""
-        Else
-            found = False
-        End If
-    Wend
-End Sub
 
 
 Public Function isEmptyString(ByVal myStr As String) As Boolean
@@ -256,11 +213,24 @@ Public Sub updateLevelCellColor()
 End Sub
 
 
+Private Function getWorkbookByPath(sPath As String) As Workbook
+    Dim i As Integer
+    For i = 1 To Workbooks.Count
+        If Workbooks(i).FullName = sPath Then
+            Set getWorkbookByPath = Workbooks(i)
+            Exit Function
+        End If
+    Next
+End Function
+
+
+
 Public Sub loadExcelSheet()
     Dim RT As String: RT = getInfo("REPORT_TYPE") & "-" & getInfo("LANG")
     If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Application.DisplayAlerts = False
-    
+    Dim ws_main As Worksheet: Set ws_main = ThisWorkbook.Worksheets("PowerAuditor")
+       
     Dim ws As Worksheet
     For Each ws In ThisWorkbook.Worksheets
         If ws.name <> "PowerAuditor" Then
@@ -278,29 +248,35 @@ Public Sub loadExcelSheet()
         Exit Sub
     End If
     
-    
-    Dim wb As Workbook: Set wb = Workbooks.Open(sPath)
+    Dim wb As Workbook: Set wb = Workbooks.Open(fileName:=sPath, ReadOnly:=True, Notify:=False, AddToMru:=False, CorruptLoad:=xlNormalLoad)
+    sPath = wb.FullName
+    Set wb = Nothing
+    Application.Wait (Now + TimeValue("0:00:02"))
     ' Copy des feuilles excel
-    For Each ws In wb.Worksheets
-        wb.Worksheets(ws.name).Copy after:=ThisWorkbook.Worksheets("PowerAuditor")
+    On Error GoTo reTry_loadExcelSheet
+    For Each ws In getWorkbookByPath(sPath).Worksheets
+reTry_loadExcelSheet:
+        getWorkbookByPath(sPath).Worksheets(ws.name).Copy after:=ws_main
     Next ws
+    On Error GoTo 0
     ' Suppression des références invalides
     Call cleanUpInvalidExcelRef
     Dim rangeName As name
     ' Copy des Range nommés
-    For Each rangeName In wb.Names
+    For Each rangeName In getWorkbookByPath(sPath).Names
         If InStr(1, rangeName.RefersTo, "#REF!") = 0 And InStr(1, rangeName.RefersTo, ".xlsm]") = 0 Then
             ThisWorkbook.Names.Add name:=rangeName.name, RefersTo:=rangeName.RefersTo
         End If
     Next
-    wb.Close
+    getWorkbookByPath(sPath).Close
     Application.DisplayAlerts = True
-    Call Versionning.loadModule(getInfo("REPORT_TYPE"))
-    With Range("LEVEL")
+    With ws_main.Range("LEVEL")
         .Value2 = ""
         .Interior.color = 0
         .Font.color = 0
     End With
+    Call Versionning.loadModule(getInfo("REPORT_TYPE"))
+    Call ws_main.Parent.Save
 End Sub
 
 
@@ -363,37 +339,6 @@ Public Function randomString(Length As Integer)
 End Function
 
 
-Function selectCCInCC(oWRange As Object, sTitle As String) As Object
-    Dim i As Integer
-    For i = 1 To oWRange.ContentControls.Count
-        If oWRange.ContentControls(i).title = sTitle Then
-            Set selectCCInCC = oWRange.ContentControls(i)
-            Exit Function
-        End If
-    Next
-    Set selectCCInCC = Nothing
-End Function
-
-
-
-
-Public Function cleanupFileName(ByVal sFileName As String) As String
-    ' Suppression des espaces et \r\n au début du nom de fichier
-    While Left(sFileName, 1) = " " Or Left(sFileName, 1) = vbCr Or Left(sFileName, 1) = vbLf
-        sFileName = Mid(sFileName, 2)
-    Wend
-    ' Suppression de la numérotation
-    While IsNumeric(Left(sFileName, 1))
-        sFileName = Mid(sFileName, 2)
-    Wend
-    ' Suppression des tirets et des espaces
-    While Left(sFileName, 1) = "." Or Left(sFileName, 1) = "-" Or Left(sFileName, 1) = " "
-        sFileName = Mid(sFileName, 2)
-    Wend
-    cleanupFileName = sFileName
-End Function
-
-
 Public Function CVSSReader(cvss As String) As String
     Dim sTmpFile As String: sTmpFile = Environ("TMP") & "\" & randomString(10)
     Call IOFile.runCmd("cmd /c " & Common.getPowerAuditorPath() & "\bin\CVSSEditor.exe " & cvss & " > " & sTmpFile, 0, True)
@@ -407,7 +352,7 @@ Public Sub updateTemplateList()
     Dim rReportTypeTbl As Range: Set rReportTypeTbl = ws.Range("REPORT_TYPE_TBL[REPORT TYPE]")
     Dim iRow As Integer: iRow = rReportTypeTbl.Row
     Dim iCol As Integer: iCol = rReportTypeTbl.Column
-    Dim sPath As String: sPath = Common.getPowerAuditorPath() & "\template\"
+    Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\template\"
     Dim pFile: pFile = Dir(sPath & "*.xlsm")
     Dim sTmp As String
     Call cleanupTemplateList

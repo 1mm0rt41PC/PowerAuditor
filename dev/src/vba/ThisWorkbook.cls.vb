@@ -74,9 +74,9 @@ End Sub
 Private Sub Workbook_Open()
     ' On install les pré-requis
     If Not Common.isDevMode() Then
-        If Not IOFile.isFile(Common.getPowerAuditorPath() & "\desktop.ini") Then
+        If Not IOFile.isFile(IOFile.getPowerAuditorPath() & "\desktop.ini") Then
             MsgBox "It seems that the powerauditor dependencies are not installed." & vbNewLine & "The installation of dependencies ( git) and their configurations will start now....", vbOKOnly, "PowerAuditor"
-            Call IOFile.runCmd(Common.getPowerAuditorPath() & "\install\setup.bat", 1, True)
+            Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\install\setup.bat", 1, True)
         End If
     End If
         
@@ -172,7 +172,7 @@ Public Sub ToProd(control As Object)
         End If
     Next ws
     wb_exp.Sheets(1).Delete
-    sFilepath = Replace(Common.getPowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & "-" & Common.getInfo("LANG") & ".xlsm", "\\", "\")
+    sFilepath = Replace(IOFile.getPowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & "-" & Common.getInfo("LANG") & ".xlsm", "\\", "\")
     Call wb_exp.SaveAs(sFilepath, FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     wb_exp.Close
     
@@ -201,7 +201,7 @@ Public Sub ToProd(control As Object)
     
     Call cleanUpInvalidExcelRef
     G_SaveAsOnGoing = True
-    Dim sNewPath As String: sNewPath = Replace(Common.getPowerAuditorPath() & "\PowerAuditor_", "\\", "\")
+    Dim sNewPath As String: sNewPath = Replace(IOFile.getPowerAuditorPath() & "\PowerAuditor_", "\\", "\")
     Call ThisWorkbook.SaveAs(sNewPath & "v" & Year(Now) & Month(Now) & Day(Now) & ".xlsm", FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     Call ThisWorkbook.SaveAs(sNewPath & "last.xlsm", FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     G_SaveAsOnGoing = False
@@ -238,8 +238,8 @@ Public Sub FillExcelWithProof(control As Object)
             ws.Cells(iRow, COL_ID).Value2 = iRow - 2
             ws.Cells(iRow, COL_NAME).Value2 = sFile
             
-            If IOFile.isFile(Common.getVulnDBPath(sFile) & "\" & LANG & "-desc.html") Then
-                sPath = Common.getVulnDBPath(sFile)
+            If IOFile.isFile(IOFile.getVulnDBPath(sFile) & "\" & LANG & "-desc.html") Then
+                sPath = IOFile.getVulnDBPath(sFile)
                 For i = 0 To UBound(toImportText)
                     ws.Cells(iRow, Common.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & LANG & "-" & toImportText(i) & ".html"), Chr(10) & Chr(13))
                 Next i
@@ -273,7 +273,7 @@ Public Sub ExportVulnToGit(control As Object)
         name = ws.Cells(iRow, toExportKeyCol).Value2
         If MsgBox("Export >" & name & "< to the GIT ?", vbYesNo + vbQuestion) = vbYes Then
             Debug.Print "Export VULN to GIT: " & name
-            sPath = Common.getVulnDBPath(name)
+            sPath = IOFile.getVulnDBPath(name)
             Call IOFile.myMkDir(sPath)
             For i = 0 To UBound(toExportText)
                 Call IOFile.fileSetContent(sPath & "\" & LANG & "-" & toExportText(i) & ".html", ws.Cells(iRow, Common.getColLocation(ws, toExportText(i))).Value2)
@@ -282,7 +282,7 @@ Public Sub ExportVulnToGit(control As Object)
                 ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
                 wDoc.SelectContentControlsByTitle("VLN_" & toExportHTML(i) & "_" & ws.Cells(iRow, COL_ID).Value2)(1).Range.ExportFragment sPath & "\" & LANG & "-" & toExportHTML(i) & ".html", wdFormatHTML
             Next i
-            sPath = Common.getNotableFile(name)
+            sPath = IOFile.getNotableFile(name)
             If Not IOFile.isFile(sPath) Then
                 Call IOFile.fileSetContent(sPath, "---" & _
                 "title: " & name & vbLf & _
