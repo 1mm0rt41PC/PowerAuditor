@@ -29,12 +29,21 @@ End Sub
 
 Private Sub nbReportType(control As Object, ByRef nbElt)
     'Définit le nombre d'éléments dans la combobox
-    nbElt = Worksheets("PowerAuditor").Range("REPORT_TYPE_LIST").Cells.Count
+    Dim rng As Range: Set rng = Worksheets("PowerAuditor").Range("REPORT_TYPE_TBL[REPORT TYPE]")
+    If rng.Count <= 0 Then
+        nbElt = 0
+        Exit Sub
+    End If
+    nbElt = 1
+    While rng.Value2(nbElt, 1) <> ""
+        nbElt = nbElt + 1
+    Wend
+    nbElt = nbElt - 1
 End Sub
 
 
 Private Sub getReportTypeByIndex(control As Object, index As Integer, ByRef elt)
-    elt = Worksheets("PowerAuditor").Range("REPORT_TYPE_LIST").Cells(index).Value2
+    elt = Range("REPORT_TYPE_TBL[REPORT TYPE]").Value2(index + 1, 1)
 End Sub
 
 

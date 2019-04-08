@@ -225,12 +225,9 @@ End Function
 
 
 Sub setReportTypeList(RT As String)
-    ThisWorkbook.Worksheets("PowerAuditor").Range("REPORT_TYPE_LIST") = ""
+    Call cleanupTemplateList
     Dim aList As Variant: aList = Split(RT, ",")
-    With ThisWorkbook.Names.Item("REPORT_TYPE_LIST")
-        .RefersTo = .RefersToRange.Resize(UBound(aList) + 1)
-    End With
-    ThisWorkbook.Worksheets("PowerAuditor").Range("REPORT_TYPE_LIST") = Application.Transpose(aList)
+    ThisWorkbook.Worksheets("PowerAuditor").Range("REPORT_TYPE_TBL[REPORT TYPE]") = Application.Transpose(aList)
 End Sub
 
 
@@ -406,22 +403,28 @@ End Function
 
 
 Public Sub updateTemplateList()
-    Dim iRow As Integer: iRow = Range("REPORT_TYPE_LIST").Row
-    Dim iCol As Integer: iCol = Range("REPORT_TYPE_LIST").Column
-    Dim sPath As String: sPath = Common.getPowerAuditorPath() & "\template\"
     Dim ws As Worksheet: Set ws = Worksheets("PowerAuditor")
+    Dim rReportTypeTbl As Range: Set rReportTypeTbl = ws.Range("REPORT_TYPE_TBL[REPORT TYPE]")
+    Dim iRow As Integer: iRow = rReportTypeTbl.Row
+    Dim iCol As Integer: iCol = rReportTypeTbl.Column
+    Dim sPath As String: sPath = Common.getPowerAuditorPath() & "\template\"
     Dim pFile: pFile = Dir(sPath & "*.xlsm")
     Dim sTmp As String
-    Range("REPORT_TYPE_LIST").Value2 = ""
+    Call cleanupTemplateList
     While pFile <> ""
         sTmp = Replace(Replace(Replace(pFile, "-EN", ""), "-FR", ""), ".xlsm", "")
-        If Not isValueInExcelRange(sTmp, Range("REPORT_TYPE_LIST")) Then
+        If Not isValueInExcelRange(sTmp, rReportTypeTbl) Then
             ws.Cells(iRow, iCol).Value2 = sTmp
             iRow = iRow + 1
         End If
         pFile = Dir
     Wend
     Exit Sub
+End Sub
+
+
+Public Sub cleanupTemplateList()
+    Range("REPORT_TYPE_TBL[REPORT TYPE]").Value2 = ""
 End Sub
 
 

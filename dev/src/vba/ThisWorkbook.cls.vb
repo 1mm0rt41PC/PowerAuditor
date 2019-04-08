@@ -67,7 +67,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
     End If
     Call cleanUpInvalidExcelRef
     ' On cleanup la liste des templates
-    Range("REPORT_TYPE_LIST").Value2 = ""
+    Call Common.cleanupTemplateList
 End Sub
 
 
@@ -80,7 +80,7 @@ Private Sub Workbook_Open()
         End If
     End If
         
-    Call updateTemplateList
+    Call Common.updateTemplateList
     
     ' On update les repos
     Call IOFile.git("pull", "vulndb")
@@ -196,7 +196,7 @@ Public Sub ToProd(control As Object)
     End With
     ' On cleanup la liste des templates
     G_exportToProd = True
-    Range("REPORT_TYPE_LIST").Value2 = ""
+    Common.cleanupTemplateList
     Range("REPORT_TYPE").Value2 = ""
     
     Call cleanUpInvalidExcelRef
