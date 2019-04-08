@@ -82,8 +82,8 @@ if( -not [System.IO.File]::Exists('C:\ProgramData\chocolatey\bin\choco.exe') ){
 }
 
 # Install git and notable
-choco install git.install --force -y
-choco install notable --force -y
+choco install git.install -y
+choco install notable -y
 mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\ -ErrorAction SilentlyContinue
 mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\notes -ErrorAction SilentlyContinue
 mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\attachments -ErrorAction SilentlyContinue
