@@ -20,36 +20,69 @@ Option Explicit
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Public m_return
+Private m_RT As String ' ModuleName
+
+Private Function getRT() As String
+    If m_RT = "" Then m_RT = "RT_" & Split(getInfo("REPORT_TYPE"), "-")(0)
+    getRT = m_RT
+End Function
 
 Public Function getCorp() As String
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getCorp")
+    Call Application.Run(getRT() & ".getCorp")
     getCorp = m_return
 End Function
 
 
 Public Function getManager() As String
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getManager")
+    Call Application.Run(getRT() & ".getManager")
     getManager = m_return
 End Function
 
 
 Public Function getReportFilename(pType As String) As String
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getReportFilename", pType)
+    Call Application.Run(getRT() & ".getReportFilename", pType)
     getReportFilename = m_return
 End Function
 
 
 Public Function getExportFields_HTML() As Variant
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getExportFields_HTML")
+    Call Application.Run(getRT() & ".getExportFields_HTML")
     getExportFields_HTML = m_return
 End Function
 
+
 Public Function getExportFields_TXT() As Variant
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getExportFields_TXT")
+    Call Application.Run(getRT() & ".getExportFields_TXT")
     getExportFields_TXT = m_return
 End Function
 
+
 Public Function getExportField_KeyColumn(ws As Worksheet) As Integer
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".getExportField_KeyColumn", ws)
+    Call Application.Run(getRT() & ".getExportField_KeyColumn", ws)
     getExportField_KeyColumn = m_return
 End Function
+
+
+Public Sub init(wDoc As Object, ws As Worksheet)
+    Call Application.Run(getRT() & ".init", wDoc, ws)
+End Sub
+
+
+Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
+    Call Application.Run(getRT() & ".insertVuln", wDoc, ws, iRow)
+End Sub
+
+
+Public Sub finish(wDoc As Object, ws As Worksheet, nbVuln As Integer)
+    Call Application.Run(getRT() & ".finish", wDoc, ws, nbVuln)
+End Sub
+
+
+Public Sub genSynthesis(wDoc As Object, ws As Worksheet)
+    Call Application.Run(getRT() & ".GenSynthesis", wDoc, ws)
+End Sub
+
+
+Public Sub exportFinalStaticsDocuments(wDoc As Object, ws As Worksheet)
+    Call Application.Run(getRT() & ".ExportFinalStaticsDocuments", wDoc, ws)
+End Sub

@@ -54,7 +54,7 @@ Public Const wdContentControlHidden = 2
 ' @return {Word.ActiveDocument} The instace to a valid TEMPLATE for the report
 '
 Public Function getInstance()
-    Dim sPath As String: sPath = Environ("USERPROFILE") & "\PowerAuditor\template\"
+    Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\template\"
     Dim wDoc As Object: Set wDoc = getActiveInstance(Application.ActiveWorkbook.Path & "\" & Dir(Application.ActiveWorkbook.Path & "\*TEMPLATE*.docx"))
     If wDoc Is Nothing Then
         If Dir(Application.ActiveWorkbook.Path & "\*TEMPLATE*.docx") = "" Then
@@ -553,5 +553,4 @@ Public Sub UpdateALLFields(wDoc As Object)
         oToc.Update 'update TOC's
     Next oToc
 End Sub
-
 

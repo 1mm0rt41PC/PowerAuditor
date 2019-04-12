@@ -125,14 +125,14 @@ Sub ExportExcelToWordTemplate(control As Object)
     G_naturalTableColor1 = ws.Cells(2, 1).DisplayFormat.Interior.color
     G_naturalTableColor2 = ws.Cells(3, 1).DisplayFormat.Interior.color
     
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".init", wDoc, ws)
+    Call RT.init(wDoc, ws)
     While ws.Cells(iRow, 1).Value2 <> ""
-        Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".insertVuln", wDoc, ws, iRow)
+        Call RT.insertVuln(wDoc, ws, iRow)
         iRow = iRow + 1
     Wend
     nbVuln = iRow - 3
     
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".finish", wDoc, ws, nbVuln)
+    Call RT.finish(wDoc, ws, nbVuln)
     wDoc.Fields.Update
     MsgBox "Generation done :-)"
 End Sub
@@ -144,16 +144,16 @@ Sub genSynthesis(control As Object)
     
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".GenSynthesis", wDoc, ws)
+    Call RT.genSynthesis(wDoc, ws)
     MsgBox "Generated"
 End Sub
 
 
-Sub ExportFinalStaticsDocuments(control As Object)
+Sub exportFinalStaticsDocuments(control As Object)
     If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
-    Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".ExportFinalStaticsDocuments", wDoc, ws)
+    Call RT.exportFinalStaticsDocuments(wDoc, ws)
     Call UpdateALLFields(wDoc)
     MsgBox "Generated"
 End Sub
