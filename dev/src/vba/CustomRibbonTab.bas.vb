@@ -70,7 +70,6 @@ Public Sub invalidAlltext()
     CustomRibbonTab.G_Ribbon.InvalidateControl "VERSION_DATE"
     CustomRibbonTab.G_Ribbon.InvalidateControl "BEGIN_DATE"
     CustomRibbonTab.G_Ribbon.InvalidateControl "END_DATE"
-    CustomRibbonTab.G_Ribbon.InvalidateControl "LANG"
     CustomRibbonTab.G_Ribbon.InvalidateControl "REPORT_TYPE"
     Err.Clear
 End Sub

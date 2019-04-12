@@ -27,7 +27,7 @@ Option Explicit
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Private Sub Worksheet_Change(ByVal Target As Range)
     If ThisWorkbook.G_exportToProd Then Exit Sub
-    If Not Application.Intersect(Range("LANG"), Range(Target.Address)) Is Nothing Or Not Application.Intersect(Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing Then
+    If Not Application.Intersect(Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing Then
         Call Common.loadExcelSheet
     End If
     
@@ -40,7 +40,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         Not Application.Intersect(Range("VERSION_DATE"), Range(Target.Address)) Is Nothing Or _
         Not Application.Intersect(Range("BEGIN_DATE"), Range(Target.Address)) Is Nothing Or _
         Not Application.Intersect(Range("END_DATE"), Range(Target.Address)) Is Nothing Or _
-        Not Application.Intersect(Range("LANG"), Range(Target.Address)) Is Nothing Or _
         Not Application.Intersect(Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing _
     Then
         Call CustomRibbonTab.invalidAlltext

@@ -45,10 +45,12 @@ https://www.rondebruin.nl/win/s2/win003.htm
 					<!-- getItemCount="nbReportType" va définir le nombre d'items dans la combobox. --> 
 					<!-- getItemLabel="getReportTypeByIndex" permet d'alimenter la combobox. -->
 					<!-- invalidateContentOnDrop="true" permet la mise à jour automatique du contrôle. -->
+					<!--
 					<comboBox id="LANG" label="Lang" onChange="CustomRibbonTab.RibbonOnChange" imageMso="Spelling" getText="CustomRibbonTab.GetText"> 
 						<item id="lang_fr" label="FR" /> 
 						<item id="lang_en" label="EN" /> 
 					</comboBox>
+					-->
 					<editBox id="CLIENT" imageMso="SendCopySelectNames" label="Client :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Name of the client." sizeString="99999999999999"/>					
 					<comboBox id="REPORT_TYPE" imageMso="DocumentTemplate" label="Tpl : " getItemCount="CustomRibbonTab.nbReportType" getItemLabel="CustomRibbonTab.getReportTypeByIndex" invalidateContentOnDrop="true" getText="CustomRibbonTab.GetText" />
 					<separator id="Sep01"/>

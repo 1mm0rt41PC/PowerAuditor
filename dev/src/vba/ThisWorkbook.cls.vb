@@ -120,7 +120,7 @@ Sub ExportExcelToWordTemplate(control As Object)
     Call Word.setCCVal(wDoc, "AUTHOR_EMAIL", Common.getFromO365("EmailAddress"))
     Call Word.setCCVal(wDoc, "AUTHOR", Common.getFromO365("FriendlyName"))
     
-    Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
+    Set ws = Worksheets(getInfo("REPORT_TYPE"))
     
     G_naturalTableColor1 = ws.Cells(2, 1).DisplayFormat.Interior.color
     G_naturalTableColor2 = ws.Cells(3, 1).DisplayFormat.Interior.color
@@ -142,21 +142,21 @@ End Sub
 Sub genSynthesis(control As Object)
     If MsgBox("Do you want generate the SYTHESIS ?" & vbNewLine & "This action will >>>REMOVE<<< the current SYTHESIS !!!!!!!!", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
+    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".GenSynthesis", wDoc, ws)
     MsgBox "Generated"
 End Sub
 
 
-Sub exportFinalStaticsDocuments(control As Object)
+Sub ExportFinalStaticsDocuments(control As Object)
     If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
+    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call Application.Run("RT_" & getInfo("REPORT_TYPE") & ".ExportFinalStaticsDocuments", wDoc, ws)
+    Call UpdateALLFields(wDoc)
     MsgBox "Generated"
 End Sub
-
 
 
 Public Sub ToProd(control As Object)
@@ -172,7 +172,7 @@ Public Sub ToProd(control As Object)
         End If
     Next ws
     wb_exp.Sheets(1).Delete
-    sFilepath = Replace(IOFile.getPowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & "-" & Common.getInfo("LANG") & ".xlsm", "\\", "\")
+    sFilepath = Replace(IOFile.getPowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & ".xlsm", "\\", "\")
     Call wb_exp.SaveAs(sFilepath, FileFormat:=xlOpenXMLWorkbookMacroEnabled)
     wb_exp.Close
     
@@ -218,12 +218,12 @@ End Sub
 
 Public Sub FillExcelWithProof(control As Object)
     If MsgBox("Do you want fill this excel with your proof ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
+    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
 
     Dim COL_ID As Integer: COL_ID = Common.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = RT.getExportField_KeyColumn(ws)
     Dim toImportText As Variant: toImportText = Array("desc", "category", "fixtype", "risk", "fix")
-    Dim LANG As String: LANG = getInfo("LANG")
+    Dim LANG As String: LANG = Common.getLang()
     Dim i As Integer
     Dim vlnDir As String: vlnDir = ActiveWorkbook.Path & "\vuln\"
     Dim iRow As Integer: iRow = 3
@@ -256,12 +256,12 @@ End Sub
 Public Sub ExportVulnToGit(control As Object)
     If MsgBox("Do you want to export your vulnerabilities to the GIT ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Dim iRow As Integer: iRow = 3
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE") & "-" & getInfo("LANG"))
+    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     
     Dim COL_ID As Integer: COL_ID = Common.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = Common.getColLocation(ws, "name")
-    Dim LANG As String: LANG = getInfo("LANG")
+    Dim LANG As String: LANG = Common.getLang()
     Dim name As String
     Dim sPath As String
     Dim toExportText As Variant: toExportText = RT.getExportFields_TXT

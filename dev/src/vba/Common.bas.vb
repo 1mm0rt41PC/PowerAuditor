@@ -226,7 +226,7 @@ End Function
 
 
 Public Sub loadExcelSheet()
-    Dim RT As String: RT = getInfo("REPORT_TYPE") & "-" & getInfo("LANG")
+    Dim RT As String: RT = getInfo("REPORT_TYPE")
     If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Application.DisplayAlerts = False
     Dim ws_main As Worksheet: Set ws_main = ThisWorkbook.Worksheets("PowerAuditor")
@@ -357,7 +357,7 @@ Public Sub updateTemplateList()
     Dim sTmp As String
     Call cleanupTemplateList
     While pFile <> ""
-        sTmp = Replace(Replace(Replace(pFile, "-EN", ""), "-FR", ""), ".xlsm", "")
+        sTmp = Replace(pFile, ".xlsm", "")
         If Not isValueInExcelRange(sTmp, rReportTypeTbl) Then
             ws.Cells(iRow, iCol).Value2 = sTmp
             iRow = iRow + 1
@@ -382,5 +382,10 @@ Public Function isValueInExcelRange(val As String, rng As Range) As Boolean
         End If
     Next i
     isValueInExcelRange = False
+End Function
+
+
+Public Function getLang() As String
+    getLang = Split(Worksheets(2).name, "-")(1)
 End Function
 

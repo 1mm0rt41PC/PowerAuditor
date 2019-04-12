@@ -61,7 +61,7 @@ Public Function getInstance()
             Debug.Print "[*] Using a new template from forge"
             Dim fso As Object: Set fso = VBA.CreateObject("Scripting.FileSystemObject")
             Call fso.CopyFile( _
-                sPath & "\" & getInfo("REPORT_TYPE") & "-" & getInfo("LANG") & ".docx", _
+                sPath & "\" & getInfo("REPORT_TYPE") & ".docx", _
                 Application.ActiveWorkbook.Path & "\" & RT.getReportFilename("TEMPLATE") & ".docx", _
                 True _
             )
@@ -165,9 +165,9 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     
     
     ' On insert les preuves qui proviennent du dossier VULNDB
-    Dim toImportHTML As Variant: toImportHTML = Array("descDetails", "fixDetails", "fixDetails")
+    Dim toImportHTML As Variant: toImportHTML = RT.getExportFields_HTML()
     Set cc = wDoc.SelectContentControlsByTitle("VLN_exploit_" & id)(1)
-    Dim LANG As String: LANG = getInfo("LANG")
+    Dim LANG As String: LANG = Common.getLang()
     Dim subCC As Object
     Dim sPath As String: sPath = IOFile.getVulnDBPath(name)
     If IOFile.isFile(sPath & "\" & LANG & "-desc.html") Then
@@ -536,4 +536,22 @@ Public Sub trimContentControl(cc)
         End If
     Wend
 End Sub
+
+' http://www.vbaexpress.com/kb/getarticle.php?kb_id=459
+' This one updates all the fields in the document:
+Public Sub UpdateALLFields(wDoc As Object)
+    Dim oStory As Object
+    Dim oToc As Object
+    
+    If wDoc.Documents.Count = 0 Then Exit Sub
+     
+    For Each oStory In wDoc.StoryRanges
+        oStory.Fields.Update 'update fields in all stories
+    Next oStory
+     
+    For Each oToc In wDoc.TablesOfContents
+        oToc.Update 'update TOC's
+    Next oToc
+End Sub
+
 
