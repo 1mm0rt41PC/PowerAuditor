@@ -19,7 +19,7 @@
 
 # We ask for the user identity
 if( (Get-ChildItem $env:USERPROFILE\PowerAuditor\config.ini -ErrorAction SilentlyContinue).Count -eq 0 ){
-	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email for reports", "Office356 configuration")
+	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email for reports (ie: fake@domain.com)", "Office356 configuration")
 	$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name for reports (ie: NUEL Guillaume)", "Office356 configuration")
 	echo "FriendlyName=$pseudo" | Out-File -Encoding ascii $env:USERPROFILE\PowerAuditor\config.ini
 	echo "EmailAddress=$email" | Out-File -Encoding ascii -Append $env:USERPROFILE\PowerAuditor\config.ini
@@ -84,6 +84,7 @@ if( -not [System.IO.File]::Exists('C:\ProgramData\chocolatey\bin\choco.exe') ){
 # Install git and notable
 choco install git.install -y
 choco install notable -y
+New-Alias git "C:\Program Files\Git\bin\git.exe"
 mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\ -ErrorAction SilentlyContinue
 mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\notes -ErrorAction SilentlyContinue
 mkdir $env:USERPROFILE\PowerAuditor\vulndb\.notable\attachments -ErrorAction SilentlyContinue
@@ -92,7 +93,7 @@ reg ADD HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security /v Acces
 
 # We ask for the user identity
 if( (Get-ChildItem $env:USERPROFILE\.gitconfig -ErrorAction SilentlyContinue).Count -eq 0 ){
-	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email for GIT", "GIT configuration")
+	$email = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your address email for GIT (ie: fake@domain.com)", "GIT configuration")
 	$pseudo = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your name for GIT (ie: NUEL Guillaume)", "GIT configuration")
 	git config --global user.name $pseudo
 	git config --global user.email $email

@@ -152,7 +152,6 @@ Sub exportFinalStaticsDocuments(control As Object)
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call RT.exportFinalStaticsDocuments(wDoc, ws)
-    Call UpdateALLFields(wDoc)
     MsgBox "Generated"
 End Sub
 

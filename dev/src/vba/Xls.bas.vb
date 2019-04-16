@@ -200,13 +200,13 @@ Public Sub exportPowerauditorToXlsx(Optional aSheetsNewName As Variant = Nothing
     Dim sFilename As String: sFilename = ThisWorkbook.Path & "\output\" & RT.getExcelFilename() & ".xlsx"
     Dim sCorp As String: sCorp = RT.getCorp
     Dim iRow As Integer: iRow = 1
-    If Not aSheetsNewName Is Nothing Then Set aSheetsNewName = Array()
+    If IsMissing(aSheetsNewName) Then aSheetsNewName = Array()
     
     For Each ws In ThisWorkbook.Worksheets
         If ws.name <> "PowerAuditor" Then
             ws.Copy After:=ws_ex.Worksheets(ws_ex.Worksheets.Count)
             If UBound(aSheetsNewName) < ws_ex.Worksheets.Count Then
-                ws_ex.Worksheets(ws_ex.Worksheets.Count).name = aSheetsNewName(ws_ex.Worksheets.Count - 1)
+                ws_ex.Worksheets(ws_ex.Worksheets.Count).name = aSheetsNewName(ws_ex.Worksheets.Count - 2)
             End If
         End If
     Next ws
