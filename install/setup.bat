@@ -18,17 +18,17 @@
 set scriptpath=%~dp0
 set scriptpath=%scriptpath:~0,-1%
 set DST=%userprofile%\PowerAuditor
-echo [.ShellClassInfo]     > %DST%\desktop.txt
-echo ConfirmFileOp=0      >> %DST%\desktop.txt
-echo NoSharing=1          >> %DST%\desktop.txt
-echo IconFile=%DST%\install\icon.ico       >> %DST%\desktop.txt
-echo IconIndex=0          >> %DST%\desktop.txt
+echo [.ShellClassInfo] > %DST%\desktop.txt
+echo ConfirmFileOp=0 >> %DST%\desktop.txt
+echo NoSharing=1 >> %DST%\desktop.txt
+echo IconFile=%DST%\install\icon.ico >> %DST%\desktop.txt
+echo IconIndex=0 >> %DST%\desktop.txt
 echo IconResource=%DST%\install\icon.ico,0 >> %DST%\desktop.txt
 echo InfoTip=PowerAuditor >> %DST%\desktop.txt
-echo [ViewState]          >> %DST%\desktop.txt
-echo Mode=                >> %DST%\desktop.txt
-echo Vid=                 >> %DST%\desktop.txt
-echo FolderType=Generic   >> %DST%\desktop.txt
+echo [ViewState] >> %DST%\desktop.txt
+echo Mode= >> %DST%\desktop.txt
+echo Vid= >> %DST%\desktop.txt
+echo FolderType=Generic >> %DST%\desktop.txt
 chcp 1252 >NUL
 attrib -S -H -R %DST%\desktop.ini 2>NUL
 ::cmd.exe /D /A /C (SET/P=ÿþ)<NUL > desktop.ini 2>NUL

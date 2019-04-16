@@ -15,7 +15,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; see the file COPYING. If not, write to the
 # Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-[void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic") 
+[void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic")
+
+
+# $DesktopIni = @"
+# [.ShellClassInfo]
+# ConfirmFileOp=0
+# NoSharing=1
+# IconFile=$env:USERPROFILE\PowerAuditor\install\icon.ico
+# IconIndex=0
+# IconResource=$env:USERPROFILE\PowerAuditor\install\icon.ico,0
+# InfoTip=PowerAuditor
+# [ViewState]
+# Mode=
+# Vid=
+# FolderType=Generic
+# "@
+ 
+If( -not (Test-Path "$($env:USERPROFILE)\PowerAuditor\desktop.ini") ){
+	#Create/Add content to the desktop.ini file
+	Add-Content "$($env:USERPROFILE)\PowerAuditor\desktop.ini" -Value $DesktopIni
+}
+#Set the attributes for $DesktopIni
+(Get-Item "$($env:USERPROFILE)\PowerAuditor\desktop.ini" -Force).Attributes = 'Hidden, System, Archive'
+#Finally, set the folder's attributes
+(Get-Item "$($env:USERPROFILE)\PowerAuditor" -Force).Attributes = 'ReadOnly, Directory'
+
+
+
+
 
 # We ask for the user identity
 if( (Get-ChildItem $env:USERPROFILE\PowerAuditor\config.ini -ErrorAction SilentlyContinue).Count -eq 0 ){
@@ -100,3 +128,10 @@ if( (Get-ChildItem $env:USERPROFILE\.gitconfig -ErrorAction SilentlyContinue).Co
 }
 
 cmd /c mklink $env:USERPROFILE\Desktop\PowerAuditor.xlsm $env:USERPROFILE\PowerAuditor\PowerAuditor_last.xlsm
+
+# Create a lnk to the vulndb
+$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$($env:USERPROFILE)\Desktop\PowerAuditor.lnk")
+$Shortcut.TargetPath = "$($env:USERPROFILE)\PowerAuditor\vulndb\"
+$shortcut.IconLocation = "$($env:USERPROFILE)\PowerAuditor\install\icon.ico,0"
+$Shortcut.Save()
