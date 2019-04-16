@@ -138,7 +138,7 @@ End Sub
 Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     ' check si fichier existe return CC.RANGE
     ' Si exist pas insert puis return CC.RANGE
-    Dim name As String: name = ws.Cells(iRow, Common.getColLocation(ws, "name")).Value2
+    Dim name As String: name = ws.Cells(iRow, Xls.getColLocation(ws, "name")).Value2
     Debug.Print "Inserting the vulnerability: " & name
     Dim iCol As Integer: iCol = 1
     Dim id As Integer: id = iRow - 2

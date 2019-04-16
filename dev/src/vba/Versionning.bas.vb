@@ -18,6 +18,7 @@ Option Explicit
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+Public G_bDisableExportVBCode As Boolean
 
 
 ' Excel macro to export all VBA source code in this project to text files for proper source control versioning
@@ -36,7 +37,7 @@ Public Sub exportVisualBasicCode()
     Dim extension As String
     Dim REPORT_TYPE As String
 
-    If sPath = "" Or Not Common.isDevMode() Then Exit Sub
+    If sPath = "" Or Not Common.isDevMode() Or G_bDisableExportVBCode = True Then Exit Sub
     
     ' Require: reg ADD HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Security /v AccessVBOM /t REG_DWORD /d 1 /f
     For Each VBComponent In ActiveWorkbook.VBProject.VBComponents
@@ -71,8 +72,6 @@ Public Sub exportVisualBasicCode()
 
         On Error GoTo 0
     Next
-    ' Dynamic load ReportType
-    'Common.setReportTypeList (Left(REPORT_TYPE, Len(REPORT_TYPE) - 1))
 End Sub
 
 
@@ -118,8 +117,6 @@ Public Static Sub VBAFromCommonSrc()
         ' Next file
         pFile = Dir
     Loop
-    ' Dynamic load ReportType
-    'Common.setReportTypeList (Left(REPORT_TYPE, Len(REPORT_TYPE) - 1))
     Debug.Print "Load complete"
     Call IOFile.removeFile(ThisWorkbook.FullName & ".lock")
 End Sub
@@ -138,7 +135,7 @@ End Function
 
 
 
-Public Sub loadModule(sModuleName As String)
+Public Sub loadModule(ByVal sModuleName As String)
     If Not Common.isDevMode() Then Exit Sub
     Dim sPath As String: sPath = getVBAPath
     Dim pFile: pFile = Dir(sPath & "\RT_" & sModuleName & ".*")
@@ -151,4 +148,5 @@ Public Sub loadModule(sModuleName As String)
         .DeleteLines 1, .CountOfLines
         .AddFromString Mid(sData, pos)
     End With
+    Debug.Print "Successfully loaded report type: " & sModuleName
 End Sub

@@ -21,14 +21,14 @@
 #Tidy_Parameters=/nsdp
 #AutoIt3Wrapper_Run_Obfuscator=y
 #Obfuscator_Parameters=/striponly
-#pragma compile(Out, ../../bin/CVSSEditor.exe)
+#pragma compile(Out, ../../../bin/CVSSEditor.exe)
 #pragma compile(UPX, True)
-#pragma compile(Icon, ../if_superhero_deadpool_hero_comic_1380751.ico)
+#pragma compile(Icon, ./iconfinder_superhero_deadpool_hero_comic_1380751.ico)
 #pragma compile(AutoItExecuteAllowed, False)
 #pragma compile(Console, True)
 #pragma compile(x64, True)
-#pragma compile(FileDescription, "CVSS Editor for IRGuN (Insecure Report GeNerator)")
-#pragma compile(ProductName, myProg)
+#pragma compile(FileDescription, "CVSS Editor for PowerAuditor")
+#pragma compile(ProductName, CVSSEditor)
 #pragma compile(ProductVersion, 1.0)
 #pragma compile(FileVersion, 1.0) ; The last parameter is optional.
 #pragma compile(LegalCopyright, © 1mm0rt41PC)

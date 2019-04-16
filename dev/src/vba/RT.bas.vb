@@ -86,3 +86,9 @@ End Sub
 Public Sub exportFinalStaticsDocuments(wDoc As Object, ws As Worksheet)
     Call Application.Run(getRT() & ".ExportFinalStaticsDocuments", wDoc, ws)
 End Sub
+
+
+Public Function getExcelFilename() As String
+    Call Application.Run(getRT() & ".getExcelFilename")
+    getExcelFilename = m_return
+End Function

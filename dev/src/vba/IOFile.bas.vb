@@ -22,7 +22,7 @@ Dim G_oWSH As Object
 Private m_getPowerAuditorPath As String
 
 
-Public Function filenameEncode(sFileName As String) As String
+Public Function filenameEncode(sFilename As String) As String
     Dim i As Integer
     Dim sRet As String
     Dim cTmp As String
@@ -30,13 +30,13 @@ Public Function filenameEncode(sFileName As String) As String
     Dim enc As Variant: enc = Array(60, 62, 58, 34, 47, 92, 124, 63, 42)
     
     For i = 1 To UBound(dec)
-        sFileName = Replace(sFileName, dec(i), "%" & enc(i))
+        sFilename = Replace(sFilename, dec(i), "%" & enc(i))
     Next i
-    filenameEncode = sFileName
+    filenameEncode = sFilename
 End Function
 
 
-Public Function filenameDecode(sFileName As String) As String
+Public Function filenameDecode(sFilename As String) As String
     Dim i As Integer
     Dim sRet As String
     Dim cTmp As String
@@ -44,9 +44,9 @@ Public Function filenameDecode(sFileName As String) As String
     Dim enc As Variant: enc = Array(60, 62, 58, 34, 47, 92, 124, 63, 42)
     
     For i = 1 To UBound(dec)
-        sFileName = Replace(sFileName, "%" & enc(i), dec(i))
+        sFilename = Replace(sFilename, "%" & enc(i), dec(i))
     Next i
-    filenameDecode = sFileName
+    filenameDecode = sFilename
 End Function
 
 
@@ -155,24 +155,24 @@ End Function
 
 
 
-Public Sub fileAppend(sFileName As String, sData As String)
+Public Sub fileAppend(sFilename As String, sData As String)
     Dim iFileNum As Integer: iFileNum = FreeFile()
-    Open sFileName For Append As #iFileNum
+    Open sFilename For Append As #iFileNum
     Print #iFileNum, sData
     Close #iFileNum
 End Sub
 
-Public Sub fileSetContent(sFileName As String, sData As String)
+Public Sub fileSetContent(sFilename As String, sData As String)
     Dim iFileNum As Integer: iFileNum = FreeFile()
-    Open sFileName For Output As #iFileNum
+    Open sFilename For Output As #iFileNum
     Print #iFileNum, sData
     Close #iFileNum
 End Sub
 
-Public Function fileGetContent(sFileName As String) As String
+Public Function fileGetContent(sFilename As String) As String
     Dim sData As String
     Dim oFSO As Object: Set oFSO = CreateObject("Scripting.FileSystemObject")
-    Dim oTF As Object: Set oTF = oFSO.OpenTextFile(sFileName, 1)
+    Dim oTF As Object: Set oTF = oFSO.OpenTextFile(sFilename, 1)
     sData = oTF.readall()
     oTF.Close
     fileGetContent = sData

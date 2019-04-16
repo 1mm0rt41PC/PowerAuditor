@@ -37,7 +37,7 @@ Public G_exportToProd As Boolean
 Private Sub Workbook_AfterSave(ByVal Success As Boolean)
     If G_SaveAsOnGoing Then Exit Sub
     Versionning.exportVisualBasicCode
-    Call Common.updateTemplateList
+    Call Xls.updateTemplateList
 End Sub
 
 
@@ -65,9 +65,9 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
         Next ws
         Application.DisplayAlerts = True
     End If
-    Call cleanUpInvalidExcelRef
+    Call Xls.cleanUpInvalidExcelRef
     ' On cleanup la liste des templates
-    Call Common.cleanupTemplateList
+    Call Xls.cleanupTemplateList
 End Sub
 
 
@@ -80,13 +80,11 @@ Private Sub Workbook_Open()
         End If
     End If
         
-    Call Common.updateTemplateList
+    Call Xls.updateTemplateList
     
     ' On update les repos
-    Call IOFile.git("pull", "vulndb")
-    Call IOFile.git("pull", "template")
-    Call IOFile.git("pull", "powerauditor")
-    Versionning.VBAFromCommonSrc
+    Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\bin\AutoUpdater.exe", 0, False)
+    'Versionning.VBAFromCommonSrc
 End Sub
 
 
@@ -168,7 +166,7 @@ Public Sub ToProd(control As Object)
     Dim ws As Worksheet
     For Each ws In ThisWorkbook.Worksheets
         If ws.name <> "PowerAuditor" Then
-            ThisWorkbook.Sheets(ws.name).Copy after:=wb_exp.Sheets(1)
+            ThisWorkbook.Sheets(ws.name).Copy After:=wb_exp.Sheets(1)
         End If
     Next ws
     wb_exp.Sheets(1).Delete
@@ -196,10 +194,10 @@ Public Sub ToProd(control As Object)
     End With
     ' On cleanup la liste des templates
     G_exportToProd = True
-    Common.cleanupTemplateList
+    Xls.cleanupTemplateList
     Range("REPORT_TYPE").Value2 = ""
     
-    Call cleanUpInvalidExcelRef
+    Call Xls.cleanUpInvalidExcelRef
     G_SaveAsOnGoing = True
     Dim sNewPath As String: sNewPath = Replace(IOFile.getPowerAuditorPath() & "\PowerAuditor_", "\\", "\")
     Call ThisWorkbook.SaveAs(sNewPath & "v" & Year(Now) & Month(Now) & Day(Now) & ".xlsm", FileFormat:=xlOpenXMLWorkbookMacroEnabled)
@@ -220,7 +218,7 @@ Public Sub FillExcelWithProof(control As Object)
     If MsgBox("Do you want fill this excel with your proof ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
 
-    Dim COL_ID As Integer: COL_ID = Common.getColLocation(ws, "id")
+    Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = RT.getExportField_KeyColumn(ws)
     Dim toImportText As Variant: toImportText = Array("desc", "category", "fixtype", "risk", "fix")
     Dim LANG As String: LANG = Common.getLang()
@@ -241,7 +239,7 @@ Public Sub FillExcelWithProof(control As Object)
             If IOFile.isFile(IOFile.getVulnDBPath(sFile) & "\" & LANG & "-desc.html") Then
                 sPath = IOFile.getVulnDBPath(sFile)
                 For i = 0 To UBound(toImportText)
-                    ws.Cells(iRow, Common.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & LANG & "-" & toImportText(i) & ".html"), Chr(10) & Chr(13))
+                    ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & LANG & "-" & toImportText(i) & ".html"), Chr(10) & Chr(13))
                 Next i
             End If
             iRow = iRow + 1
@@ -259,8 +257,8 @@ Public Sub ExportVulnToGit(control As Object)
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     
-    Dim COL_ID As Integer: COL_ID = Common.getColLocation(ws, "id")
-    Dim COL_NAME As Integer: COL_NAME = Common.getColLocation(ws, "name")
+    Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
+    Dim COL_NAME As Integer: COL_NAME = Xls.getColLocation(ws, "name")
     Dim LANG As String: LANG = Common.getLang()
     Dim name As String
     Dim sPath As String
@@ -276,7 +274,7 @@ Public Sub ExportVulnToGit(control As Object)
             sPath = IOFile.getVulnDBPath(name)
             Call IOFile.myMkDir(sPath)
             For i = 0 To UBound(toExportText)
-                Call IOFile.fileSetContent(sPath & "\" & LANG & "-" & toExportText(i) & ".html", ws.Cells(iRow, Common.getColLocation(ws, toExportText(i))).Value2)
+                Call IOFile.fileSetContent(sPath & "\" & LANG & "-" & toExportText(i) & ".html", ws.Cells(iRow, Xls.getColLocation(ws, toExportText(i))).Value2)
             Next i
             For i = 0 To UBound(toExportHTML)
                 ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
