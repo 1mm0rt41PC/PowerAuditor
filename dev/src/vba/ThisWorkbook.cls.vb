@@ -270,8 +270,7 @@ Public Sub ExportVulnToGit(control As Object)
         name = ws.Cells(iRow, toExportKeyCol).Value2
         If MsgBox("Export >" & name & "< to the GIT ?", vbYesNo + vbQuestion) = vbYes Then
             Debug.Print "Export VULN to GIT: " & name
-            sPath = IOFile.getVulnDBPath(name)
-            Call IOFile.myMkDir(sPath)
+            sPath = IOFile.getVulnDBPath(name, True)
             For i = 0 To UBound(toExportText)
                 Call IOFile.fileSetContent(sPath & "\" & LANG & "-" & toExportText(i) & ".html", ws.Cells(iRow, Xls.getColLocation(ws, toExportText(i))).Value2)
             Next i
@@ -300,4 +299,5 @@ Public Sub ExportVulnToGit(control As Object)
     If Not IOFile.git("push -u origin master") Then Exit Sub
     MsgBox "Export done"
 End Sub
+
 

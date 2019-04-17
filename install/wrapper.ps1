@@ -20,7 +20,7 @@
 
 $DesktopIni = @"
 [.ShellClassInfo]
-ConfirmFileOp=0
+ConfirmFileOp=1
 NoSharing=1
 IconFile=$env:USERPROFILE\PowerAuditor\install\icon.ico
 IconIndex=0
@@ -32,19 +32,14 @@ Vid=
 FolderType=Generic
 [DeleteOnCopy]
 Personalized=5
-PersonalizedName=poney
 "@
- 
-If( -not (Test-Path "$($env:USERPROFILE)\PowerAuditor\desktop.ini") ){
-	#Create/Add content to the desktop.ini file
-	Add-Content "$($env:USERPROFILE)\PowerAuditor\desktop.ini" -Value $DesktopIni
-}
+rm -Force -Recurse "$($env:USERPROFILE)\PowerAuditor\desktop.ini"
+#Create/Add content to the desktop.ini file
+Add-Content "$($env:USERPROFILE)\PowerAuditor\desktop.ini" -Value $DesktopIni
 #Set the attributes for $DesktopIni
 (Get-Item "$($env:USERPROFILE)\PowerAuditor\desktop.ini" -Force).Attributes = 'Hidden, System, Archive'
 #Finally, set the folder's attributes
 (Get-Item "$($env:USERPROFILE)\PowerAuditor" -Force).Attributes = 'ReadOnly, Directory'
-
-
 
 
 

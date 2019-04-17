@@ -198,7 +198,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Do While pFile <> ""
         sFullpath = vlnDir & "\" & pFile
         If pFile <> "." And pFile <> ".." And IOFile.isFolder(sFullpath) Then
-            Set oFilesList = oFSO.GetFolder(sFullpath).Files
+            Set oFilesList = oFSO.getfolder(sFullpath).Files
             
             Set subCC = Word.selectCCInCC(cc.Range, Replace(sFullpath, wDoc.Path, ""))
             If subCC Is Nothing Then

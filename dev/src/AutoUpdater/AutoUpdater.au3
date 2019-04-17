@@ -46,7 +46,6 @@ Opt('GUICloseOnESC', False)
 
 Global Const $sPIDFile = @TempDir & '\AutoUpdater-PowerAuditor.pid'
 
-
 DllCall('User32.dll', 'bool', 'SetProcessDPIAware') ; Support du DPI
 
 ; We avoid to boot multiple time
@@ -69,11 +68,12 @@ Local $iLoop = 0
 While 1
 	If GUIGetMsg() == $GUI_EVENT_CLOSE Then ExitLoop
 	Sleep(5 * 1000)
-	If $iLoop > 10 Then
+	If $iLoop > 100 Then
 		$iLoop = -1
 		git('')
 		git('vulndb')
 		git('template')
+		UpdateVulnDBFolder()
 		If Not FileExists($sPIDFile) Or $iLastTimeExeUpdated <> FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING) Then
 			FileDelete($sPIDFile)
 			Local $sTmpBat = _TempFile(@TempDir, '~', '.bat')
@@ -102,3 +102,24 @@ Func git($sRepo)
 		MsgBox(0, 'AutoUpdater for PowerAuditor', 'There is an error when pulling the repo >' & $sRepo & '<' & @CRLF & $sOutput, 3)
 	EndIf
 EndFunc   ;==>git
+
+Func UpdateVulnDBFolder()
+	Local $sPath = @WorkingDir & '\vulndb'
+	Local $hSearch = FileFindFirstFile($sPath & '\*')
+	If $hSearch = -1 Then Return Null
+	Local $sFileName = ""
+
+	While 1
+		$sFileName = FileFindNextFile($hSearch)
+		If @error Then ExitLoop
+
+		If StringLeft($sFileName, 1) <> '.' Then
+			FileSetAttrib($sPath & '\' & $sFileName, '+R')
+			FileSetAttrib($sPath & '\' & $sFileName & '\desktop.ini', '+ASH')
+		EndIf
+	WEnd
+
+	FileClose($hSearch)
+EndFunc   ;==>UpdateVulnDBFolder
+
+

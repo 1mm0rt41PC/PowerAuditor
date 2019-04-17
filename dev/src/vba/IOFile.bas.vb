@@ -22,7 +22,7 @@ Dim G_oWSH As Object
 Private m_getPowerAuditorPath As String
 
 
-Public Function filenameEncode(sFilename As String) As String
+Public Function filenameEncode(ByVal sFilename As String) As String
     Dim i As Integer
     Dim sRet As String
     Dim cTmp As String
@@ -257,8 +257,34 @@ Public Function getPowerAuditorPath() As String
 End Function
 
 
-Public Function getVulnDBPath(name As String) As String
-    getVulnDBPath = IOFile.getPowerAuditorPath() & "\VulnDB\" & IOFile.filenameEncode(name)
+Public Function getVulnDBPath(sVulnerabilityName As String, Optional bCreateIfNotExist As Boolean = False) As String
+    Dim sEncVulnName As String: sEncVulnName = IOFile.filenameEncode(sVulnerabilityName)
+    Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\VulnDB\" & sEncVulnName
+    Dim oFS As Object
+    Dim isFolder As Boolean: isFolder = IOFile.isFolder(sPath)
+    If Not isFolder And Not bCreateIfNotExist Then
+        getVulnDBPath = ""
+        Exit Function
+    End If
+    Set oFS = CreateObject("scripting.filesystemobject")
+    Dim sDesktopIni As String
+    sDesktopIni = "[.ShellClassInfo]" & vbCrLf
+    sDesktopIni = sDesktopIni & "ConfirmFileOp=1" & vbCrLf
+    sDesktopIni = sDesktopIni & "NoSharing=1" & vbCrLf
+    sDesktopIni = sDesktopIni & "LocalizedResourceName=" & sVulnerabilityName & vbCrLf
+    sDesktopIni = sDesktopIni & "[ViewState]" & vbCrLf
+    sDesktopIni = sDesktopIni & "Mode=" & vbCrLf
+    sDesktopIni = sDesktopIni & "Vid=" & vbCrLf
+    sDesktopIni = sDesktopIni & "FolderType=Generic" & vbCrLf
+    sDesktopIni = sDesktopIni & "[DeleteOnCopy]" & vbCrLf
+    sDesktopIni = sDesktopIni & "Personalized=5" & vbCrLf
+    sDesktopIni = sDesktopIni & "PersonalizedName=" & sVulnerabilityName & vbCrLf
+    
+    If Not isFolder Then MkDir (sPath)
+    Call IOFile.fileSetContent(sPath & "\desktop.ini", sDesktopIni)
+    oFS.getfile(sPath & "\desktop.ini").Attributes = 39
+    oFS.getfolder(sPath).Attributes = 17
+    getVulnDBPath = sPath
 End Function
 
 
@@ -270,3 +296,4 @@ End Function
 Public Function getVBAPath() As String
     getVBAPath = ThisWorkbook.Path & "\src\vba\"
 End Function
+
