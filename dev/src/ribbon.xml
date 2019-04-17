@@ -41,25 +41,6 @@ https://www.rondebruin.nl/win/s2/win003.htm
 				<group id="Dev" label="Dev" autoScale="true">
 					<button id="toProd" label="Send template to prod" getEnabled="CustomRibbonTab.GetEnabled" imageMso="SendStatusReport" onAction="ThisWorkbook.toProd"/>
 				</group>
-				<group id="Fields" label="Fields" autoScale="true">
-					<!-- getItemCount="nbReportType" va définir le nombre d'items dans la combobox. --> 
-					<!-- getItemLabel="getReportTypeByIndex" permet d'alimenter la combobox. -->
-					<!-- invalidateContentOnDrop="true" permet la mise à jour automatique du contrôle. -->
-					<!--
-					<comboBox id="LANG" label="Lang" onChange="CustomRibbonTab.RibbonOnChange" imageMso="Spelling" getText="CustomRibbonTab.GetText"> 
-						<item id="lang_fr" label="FR" /> 
-						<item id="lang_en" label="EN" /> 
-					</comboBox>
-					-->
-					<editBox id="CLIENT" imageMso="SendCopySelectNames" label="Client :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Name of the client." sizeString="99999999999999"/>					
-					<comboBox id="REPORT_TYPE" imageMso="DocumentTemplate" label="Tpl : " getItemCount="CustomRibbonTab.nbReportType" getItemLabel="CustomRibbonTab.getReportTypeByIndex" invalidateContentOnDrop="true" getText="CustomRibbonTab.GetText" />
-					<separator id="Sep01"/>
-					<editBox id="TARGET" imageMso="OrganizationChartInsertCoworker" label="Target :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Version of the document" sizeString="99999999999999"/>
-					<separator id="Sep02"/>
-					<editBox id="VERSION_DATE" imageMso="OpenAttachedCalendar" label="Version :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Version of the document" sizeString="99999999999999"/>
-					<editBox id="BEGIN_DATE" imageMso="OpenAttachedCalendar" label="Begin :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Date where the audit BEGIN" sizeString="99999999999999"/>
-					<editBox id="END_DATE" imageMso="OpenAttachedCalendar" label="End :" getText="CustomRibbonTab.GetText" onChange="CustomRibbonTab.RibbonOnChange" screentip="Date where the audit END" sizeString="99999999999999"/>
-				</group>
 			</tab>
 		</tabs>
 	</ribbon>

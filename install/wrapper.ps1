@@ -18,19 +18,22 @@
 [void] [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.VisualBasic")
 
 
-# $DesktopIni = @"
-# [.ShellClassInfo]
-# ConfirmFileOp=0
-# NoSharing=1
-# IconFile=$env:USERPROFILE\PowerAuditor\install\icon.ico
-# IconIndex=0
-# IconResource=$env:USERPROFILE\PowerAuditor\install\icon.ico,0
-# InfoTip=PowerAuditor
-# [ViewState]
-# Mode=
-# Vid=
-# FolderType=Generic
-# "@
+$DesktopIni = @"
+[.ShellClassInfo]
+ConfirmFileOp=0
+NoSharing=1
+IconFile=$env:USERPROFILE\PowerAuditor\install\icon.ico
+IconIndex=0
+IconResource=$env:USERPROFILE\PowerAuditor\install\icon.ico,0
+InfoTip=PowerAuditor
+[ViewState]
+Mode=
+Vid=
+FolderType=Generic
+[DeleteOnCopy]
+Personalized=5
+PersonalizedName=poney
+"@
  
 If( -not (Test-Path "$($env:USERPROFILE)\PowerAuditor\desktop.ini") ){
 	#Create/Add content to the desktop.ini file

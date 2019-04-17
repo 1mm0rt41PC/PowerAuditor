@@ -27,34 +27,13 @@ Private Sub onLoad(rb As Object)
 End Sub
 
 
-Private Sub nbReportType(control As Object, ByRef nbElt)
-    'Définit le nombre d'éléments dans la combobox
-    Dim rng As Range: Set rng = Worksheets("PowerAuditor").Range("REPORT_TYPE_TBL[REPORT TYPE]")
-    If rng.Count <= 0 Then
-        nbElt = 0
-        Exit Sub
-    End If
-    nbElt = 1
-    While rng.Value2(nbElt, 1) <> ""
-        nbElt = nbElt + 1
-    Wend
-    nbElt = nbElt - 1
-End Sub
-
-
-Private Sub getReportTypeByIndex(control As Object, index As Integer, ByRef elt)
-    elt = Range("REPORT_TYPE_TBL[REPORT TYPE]").Value2(index + 1, 1)
-End Sub
-
-
 Private Sub RibbonOnChange(control As Object, val)
     Worksheets("PowerAuditor").Range(control.id).Value2 = val
 End Sub
 
 
 Private Sub GetEnabled(control As Object, ByRef enabled)
-    'enabled = Common.isDevMode()
-    enabled = True
+    enabled = Common.isDevMode()
 End Sub
 
 
@@ -62,14 +41,3 @@ Private Sub GetText(control As IRibbonControl, ByRef text)
     text = Worksheets("PowerAuditor").Range(control.id).Value2
 End Sub
 
-
-Public Sub invalidAlltext()
-    On Error Resume Next
-    CustomRibbonTab.G_Ribbon.InvalidateControl "CLIENT"
-    CustomRibbonTab.G_Ribbon.InvalidateControl "TARGET"
-    CustomRibbonTab.G_Ribbon.InvalidateControl "VERSION_DATE"
-    CustomRibbonTab.G_Ribbon.InvalidateControl "BEGIN_DATE"
-    CustomRibbonTab.G_Ribbon.InvalidateControl "END_DATE"
-    CustomRibbonTab.G_Ribbon.InvalidateControl "REPORT_TYPE"
-    Err.Clear
-End Sub

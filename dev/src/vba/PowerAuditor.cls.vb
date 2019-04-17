@@ -34,15 +34,5 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     If Not Application.Intersect(Range("LEVEL"), Range(Target.Address)) Is Nothing Then
         Call Xls.updateLevelCellColor
     End If
-    
-    If Not Application.Intersect(Range("CLIENT"), Range(Target.Address)) Is Nothing Or _
-        Not Application.Intersect(Range("TARGET"), Range(Target.Address)) Is Nothing Or _
-        Not Application.Intersect(Range("VERSION_DATE"), Range(Target.Address)) Is Nothing Or _
-        Not Application.Intersect(Range("BEGIN_DATE"), Range(Target.Address)) Is Nothing Or _
-        Not Application.Intersect(Range("END_DATE"), Range(Target.Address)) Is Nothing Or _
-        Not Application.Intersect(Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing _
-    Then
-        Call CustomRibbonTab.invalidAlltext
-    End If
 End Sub
 

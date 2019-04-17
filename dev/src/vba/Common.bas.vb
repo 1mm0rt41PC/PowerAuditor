@@ -45,7 +45,7 @@ End Function
 
 Public Function isDevMode() As Boolean
     If Common.m_isDevMode <= 0 Then
-        Common.m_isDevMode = IOFile.isFolder(getVBAPath())
+        Common.m_isDevMode = IOFile.isFolder(IOFile.getVBAPath())
         If Common.m_isDevMode Then
             Common.m_isDevMode = 1
         Else

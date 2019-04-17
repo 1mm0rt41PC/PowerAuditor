@@ -87,11 +87,15 @@ WEnd
 
 
 Func git($sRepo)
-	Local $iPID = Run('git pull', @WorkingDir & '\' & $sRepo, @SW_HIDE, $STDOUT_CHILD)
+	Local $iPID = Run('git pull', @WorkingDir & '\' & $sRepo, @SW_HIDE, BitOR($STDERR_CHILD, $STDOUT_CHILD))
 	ProcessWaitClose($iPID)
 	$retCode = @extended
 	Local $sOutput = StdoutRead($iPID)
+	$sOutput &= StderrRead($iPID)
 	If $retCode <> 0 Then
+		If StringInStr($sOutput, "Could not resolve host") Then
+			Return Null
+		EndIf
 		If $sRepo == '' Then
 			$sRepo = 'main'
 		EndIf
