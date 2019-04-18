@@ -18,6 +18,7 @@ Option Explicit
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Private m_isDevMode As Integer
+Private m_getLang As String
 
 
 Function uFirstLetter(sStr As String) As String
@@ -208,8 +209,8 @@ Public Function CVSSReader(cvss As String) As String
 End Function
 
 
-
 Public Function getLang() As String
-    getLang = Split(ThisWorkbook.Worksheets(2).name, "-")(1)
+    If m_getLang = "" Then m_getLang = UCase(Split(ThisWorkbook.Worksheets(2).name, "-")(1))
+    getLang = m_getLang
 End Function
 

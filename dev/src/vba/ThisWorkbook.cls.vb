@@ -88,7 +88,7 @@ Private Sub Workbook_Open()
 End Sub
 
 
-Sub ExportExcelToWordTemplate(control As Object)
+Public Sub exportExcelToWordTemplate(control As Object)
     If MsgBox("Do you want generate the word template ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     
     ' On renome le template avec le bon nom
@@ -208,19 +208,13 @@ Public Sub ToProd(control As Object)
 End Sub
 
 
-Public Sub WorkInProgress(control As Object)
-    MsgBox "TODO !"
-End Sub
-
-
-Public Sub FillExcelWithProof(control As Object)
+Public Sub fillExcelWithProof(control As Object)
     If MsgBox("Do you want fill this excel with your proof ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
 
     Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = RT.getExportField_KeyColumn(ws)
     Dim toImportText As Variant: toImportText = Array("desc", "category", "fixtype", "risk", "fix")
-    Dim LANG As String: LANG = Common.getLang()
     Dim i As Integer
     Dim vlnDir As String: vlnDir = ActiveWorkbook.Path & "\vuln\"
     Dim iRow As Integer: iRow = 3
@@ -235,10 +229,10 @@ Public Sub FillExcelWithProof(control As Object)
             ws.Cells(iRow, COL_ID).Value2 = iRow - 2
             ws.Cells(iRow, COL_NAME).Value2 = sFile
             
-            If IOFile.isFile(IOFile.getVulnDBPath(sFile) & "\" & LANG & "-desc.html") Then
+            If IOFile.isFile(IOFile.getVulnDBPath(sFile) & "\desc.html") Then
                 sPath = IOFile.getVulnDBPath(sFile)
                 For i = 0 To UBound(toImportText)
-                    ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & LANG & "-" & toImportText(i) & ".html"), Chr(10) & Chr(13))
+                    ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & toImportText(i) & ".html"), Chr(10) & Chr(13))
                 Next i
             End If
             iRow = iRow + 1
@@ -250,7 +244,7 @@ Public Sub FillExcelWithProof(control As Object)
 End Sub
 
 
-Public Sub ExportVulnToGit(control As Object)
+Public Sub exportVulnToGit(control As Object)
     If MsgBox("Do you want to export your vulnerabilities to the GIT ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Dim iRow As Integer: iRow = 3
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
@@ -258,7 +252,6 @@ Public Sub ExportVulnToGit(control As Object)
     
     Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = Xls.getColLocation(ws, "name")
-    Dim LANG As String: LANG = Common.getLang()
     Dim name As String
     Dim sPath As String
     Dim toExportText As Variant: toExportText = RT.getExportFields_TXT
@@ -272,11 +265,11 @@ Public Sub ExportVulnToGit(control As Object)
             Debug.Print "Export VULN to GIT: " & name
             sPath = IOFile.getVulnDBPath(name, True)
             For i = 0 To UBound(toExportText)
-                Call IOFile.fileSetContent(sPath & "\" & LANG & "-" & toExportText(i) & ".html", ws.Cells(iRow, Xls.getColLocation(ws, toExportText(i))).Value2)
+                Call IOFile.fileSetContent(sPath & "\" & toExportText(i) & ".html", ws.Cells(iRow, Xls.getColLocation(ws, toExportText(i))).Value2)
             Next i
             For i = 0 To UBound(toExportHTML)
                 ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
-                wDoc.SelectContentControlsByTitle("VLN_" & toExportHTML(i) & "_" & ws.Cells(iRow, COL_ID).Value2)(1).Range.ExportFragment sPath & "\" & LANG & "-" & toExportHTML(i) & ".html", wdFormatHTML
+                wDoc.SelectContentControlsByTitle("VLN_" & toExportHTML(i) & "_" & ws.Cells(iRow, COL_ID).Value2)(1).Range.ExportFragment sPath & "\" & toExportHTML(i) & ".html", wdFormatHTML
             Next i
             sPath = IOFile.getNotableFile(name)
             If Not IOFile.isFile(sPath) Then

@@ -167,15 +167,14 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     ' On insert les preuves qui proviennent du dossier VULNDB
     Dim toImportHTML As Variant: toImportHTML = RT.getExportFields_HTML()
     Set cc = wDoc.SelectContentControlsByTitle("VLN_exploit_" & id)(1)
-    Dim LANG As String: LANG = Common.getLang()
     Dim subCC As Object
     Dim sPath As String: sPath = IOFile.getVulnDBPath(name)
-    If IOFile.isFile(sPath & "\" & LANG & "-desc.html") Then
+    If IOFile.isFile(sPath & "\desc.html") Then
         For i = 0 To UBound(toImportHTML)
-            If IOFile.isFile(sPath & "\" & LANG & "-" & toImportHTML(i) & ".html") Then
+            If IOFile.isFile(sPath & "\" & toImportHTML(i) & ".html") Then
                 Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & toImportHTML(i) & "_" & id)(1)
                 If Common.isEmptyString(Common.trim(subCC.Range.text, "x")) Then
-                    Call subCC.Range.InsertFile(sPath & "\" & LANG & "-" & toImportHTML(i) & ".html", , , False, False)
+                    Call subCC.Range.InsertFile(sPath & "\" & toImportHTML(i) & ".html", , , False, False)
                 End If
             End If
         Next i

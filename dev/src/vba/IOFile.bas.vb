@@ -259,7 +259,7 @@ End Function
 
 Public Function getVulnDBPath(sVulnerabilityName As String, Optional bCreateIfNotExist As Boolean = False) As String
     Dim sEncVulnName As String: sEncVulnName = IOFile.filenameEncode(sVulnerabilityName)
-    Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\VulnDB\" & sEncVulnName
+    Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\VulnDB\" & Common.getLang() & "\" & sEncVulnName
     Dim oFS As Object
     Dim isFolder As Boolean: isFolder = IOFile.isFolder(sPath)
     If Not isFolder And Not bCreateIfNotExist Then
