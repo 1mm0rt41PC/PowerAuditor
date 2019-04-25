@@ -41,8 +41,13 @@ Private Sub Workbook_AfterSave(ByVal Success As Boolean)
 End Sub
 
 
-Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, ByRef Cancel As Boolean)
     If G_SaveAsOnGoing Then Exit Sub
+    If SaveAsUI = False And IOFile.getPowerAuditorPath() & "PowerAuditor_last.xlsm" = ThisWorkbook.FullName Then
+        Cancel = True
+        MsgBox "Your are not allowed to save that file", vbOKOnly, "PowerAuditor"
+        Exit Sub
+    End If
     Debug.Print "Setting file properties for TEMPLATE"
     With ThisWorkbook
         .BuiltinDocumentProperties("Title") = "Security audit of <hidden> for <secret> by 1mm0rt41PC v" & getInfo("VERSION_DATE")
@@ -157,6 +162,10 @@ End Sub
 
 
 Public Sub ToProd(control As Object)
+    If Not Common.isDevMode() Then
+        MsgBox "You do not use the xlsm development file", vbOKOnly, "PowerAuditor"
+        Exit Sub
+    End If
     Application.DisplayAlerts = False
     Dim sFilepath As String
         

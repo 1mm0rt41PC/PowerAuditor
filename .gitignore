@@ -7,3 +7,5 @@ dev/src/vba/RT_*.cls.vb
 *.docm
 desktop.ini
 config.ini
+*.7z
+*.gitignore
