@@ -30,16 +30,19 @@ https://www.rondebruin.nl/win/s2/win003.htm
 		<tabs>
 			<tab id="PowerAuditor" label="PowerAuditor" insertBeforeQ="TabFormat">
 				<group id="Reports" label="Reports" autoScale="true">
-					<button id="FillExcelWithProof" label="Fill excel with proof" imageMso="TableAutoFormat" onAction="ThisWorkbook.FillExcelWithProof"/>
+					<button id="FillExcelWithProof" label="Fill excel with proof" imageMso="TableAutoFormat" onAction="ThisWorkbook.fillExcelWithProof"/>
 					<button id="ExportExcelToWordTemplate" label="Export Excel to Word" imageMso="HappyFace" onAction="ThisWorkbook.ExportExcelToWordTemplate"/>
-					<button id="GenSynthesis" label="Generate synthesis" imageMso="ChartInsert" onAction="ThisWorkbook.GenSynthesis"/>
-					<button id="ExportFinalStaticsDocuments" label="Generate final RA/RD/XL" imageMso="PageOrientationPortraitLandscape" size="large" onAction="ThisWorkbook.ExportFinalStaticsDocuments"/>
+					<button id="GenSynthesis" label="Generate synthesis" imageMso="ChartInsert" onAction="ThisWorkbook.genSynthesis"/>
+					<button id="ExportFinalStaticsDocuments" label="Generate final RA/RD/XL" imageMso="PageOrientationPortraitLandscape" size="large" onAction="ThisWorkbook.exportFinalStaticsDocuments"/>
 				</group>
 				<group id="TeamSync" label="TeamSync" autoScale="true">
-					<button id="ExportVulnToGit" label="Export vuln to git" imageMso="FileSaveAsWebPage" size="large" onAction="ThisWorkbook.ExportVulnToGit"/>
+					<button id="ExportVulnToGit" label="Export vuln to git" imageMso="FileSaveAsWebPage" size="large" onAction="ThisWorkbook.exportVulnToGit"/>
 				</group>
 				<group id="Dev" label="Dev" autoScale="true">
-					<button id="toProd" label="Send template to prod" getEnabled="CustomRibbonTab.GetEnabled" imageMso="SendStatusReport" onAction="ThisWorkbook.toProd"/>
+					<button id="toProd" label="Send template to prod" getEnabled="CustomRibbonTab.isDevMode" imageMso="SendStatusReport" onAction="ThisWorkbook.toProd"/>
+					<editBox id="PowerAuditorVersion" imageMso="OpenAttachedCalendar" label="PowerAuditor version" getText="CustomRibbonTab.getVersion" enabled="false" sizeString="99999999999999"/>
+					<editBox id="TemplateVersion" imageMso="OpenAttachedCalendar" label="Template version" getText="CustomRibbonTab.getVersion" enabled="false" sizeString="99999999999999"/>
+					<editBox id="VulnDBVersion" imageMso="OpenAttachedCalendar" label="VulnDB version" getText="CustomRibbonTab.LastUpdate" enabled="false" sizeString="99999999999999"/>
 				</group>
 			</tab>
 		</tabs>

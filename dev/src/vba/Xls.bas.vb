@@ -120,6 +120,7 @@ reTry_loadExcelSheet:
         .Interior.color = 0
         .Font.color = 0
     End With
+    Call CustomRibbonTab.invalidAlltext
     Versionning.G_bDisableExportVBCode = True
     Call ws_main.Parent.Save
     Call Versionning.loadModule(Split(getInfo("REPORT_TYPE"), "-")(0))

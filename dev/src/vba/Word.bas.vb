@@ -170,14 +170,16 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Dim subCC As Object
     Dim sPath As String: sPath = IOFile.getVulnDBPath(name)
     If IOFile.isFile(sPath & "\desc.html") Then
-        For i = 0 To UBound(toImportHTML)
-            If IOFile.isFile(sPath & "\" & toImportHTML(i) & ".html") Then
-                Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & toImportHTML(i) & "_" & id)(1)
-                If Common.isEmptyString(Common.trim(subCC.Range.text, "x")) Then
-                    Call subCC.Range.InsertFile(sPath & "\" & toImportHTML(i) & ".html", , , False, False)
+        If MsgBox("Import data from VulnDB for the vulnerability >" & name & "< ?", vbYesNo, "PowerAuditor") = vbYes Then
+            For i = 0 To UBound(toImportHTML)
+                If IOFile.isFile(sPath & "\" & toImportHTML(i) & ".html") Then
+                    Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & toImportHTML(i) & "_" & id)(1)
+                    If Common.isEmptyString(Common.trim(subCC.Range.text, "x")) Then
+                        Call subCC.Range.InsertFile(sPath & "\" & toImportHTML(i) & ".html", , , False, False)
+                    End If
                 End If
-            End If
-        Next i
+            Next i
+        End If
     End If
     
     ' On insert les preuves qui proviennent du dossier VULN
@@ -405,8 +407,8 @@ Public Sub updateColorBoldSynthesis(wDoc As Object, aText As Variant, Optional v
     Dim i As Integer, j As Integer
     Dim color As Variant
     'color = Array("GRIS", "JAUNE", "ORANGE", "ROUGE")
-    If vColor = True And VarType(vColor) = vbBoolean Then
-        vColor = Array(RGB(133, 133, 133), RGB(255, 255, 0), RGB(255, 192, 0), RGB(255, 0, 0))
+    If VarType(vColor) = vbBoolean Then
+        If vColor = True Then vColor = Array(RGB(133, 133, 133), RGB(255, 255, 0), RGB(255, 192, 0), RGB(255, 0, 0))
     End If
     For i = 0 To UBound(aText)
         With wDoc.Content.Find
@@ -414,12 +416,12 @@ Public Sub updateColorBoldSynthesis(wDoc As Object, aText As Variant, Optional v
             With .Replacement
                 .ClearFormatting
                 .Font.Bold = True
-                If VarType(vColor) = vbArray Then
+                If VarType(vColor) <> vbBoolean Then
                     .Font.color = vColor(Left(aText(i), 1) - 1)
                 End If
                 .Font.Shadow = True
             End With
-            If VarType(vColor) = vbArray Then
+            If VarType(vColor) <> vbBoolean Then
                 .Execute FindText:="{" & aText(i) & "}", replacewith:=Split(aText(i), " - ")(1), Format:=True, Replace:=wdReplaceAll
             Else
                 .Execute FindText:="**" & aText(i) & "**", replacewith:=aText(i), Format:=True, Replace:=wdReplaceAll

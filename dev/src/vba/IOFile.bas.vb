@@ -119,8 +119,6 @@ Public Function renameDocument(inst, ext As String, pType As String, Optional By
 End Function
 
 
-
-
 Public Function git(sArgs As String, Optional sRepo As String = "vulndb") As Boolean
     Debug.Print "Git " & sArgs & " on <" & sRepo & ">"
     Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7)
@@ -281,9 +279,18 @@ Public Function getVulnDBPath(sVulnerabilityName As String, Optional bCreateIfNo
     sDesktopIni = sDesktopIni & "PersonalizedName=" & sVulnerabilityName & vbCrLf
     
     If Not isFolder Then MkDir (sPath)
-    Call IOFile.fileSetContent(sPath & "\desktop.ini", sDesktopIni)
-    oFS.getfile(sPath & "\desktop.ini").Attributes = 39
-    oFS.getfolder(sPath).Attributes = 17
+    Dim sDesktopIniPath As String: sDesktopIniPath = sPath & "\desktop.ini"
+    If IOFile.filenameEncode(sVulnerabilityName) = sVulnerabilityName Then
+        If isFile(sDesktopIniPath) Then
+            oFS.getfile(sDesktopIniPath).Attributes = 32
+            Call removeFile(sDesktopIniPath)
+        End If
+    Else
+        oFS.getfile(sDesktopIniPath).Attributes = 32
+        Call IOFile.fileSetContent(sPath & "\desktop.ini", sDesktopIni)
+        oFS.getfile(sPath & "\desktop.ini").Attributes = 39
+        oFS.getfolder(sPath).Attributes = 17
+    End If
     getVulnDBPath = sPath
 End Function
 

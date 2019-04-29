@@ -157,6 +157,7 @@ Sub exportFinalStaticsDocuments(control As Object)
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call RT.exportFinalStaticsDocuments(wDoc, ws)
+    Call IOFile.runCmd("explorer.exe " & ThisWorkbook.Path & "\output", 1, False)
     MsgBox "Generated"
 End Sub
 
@@ -168,6 +169,13 @@ Public Sub ToProd(control As Object)
     End If
     Application.DisplayAlerts = False
     Dim sFilepath As String
+    
+    If Month(Now) < 10 Then
+        Range("PowerAuditorVersion").Value2 = Year(Now) & "-0" & Month(Now) & "-" & Day(Now)
+    Else
+        Range("PowerAuditorVersion").Value2 = Year(Now) & "-" & Month(Now) & "-" & Day(Now)
+    End If
+    Range("TemplateVersion").Value2 = Range("PowerAuditorVersion").Value2
         
     ' On upgrade le template vers la bonne destination
     Dim wb_exp As Workbook: Set wb_exp = Workbooks.Add

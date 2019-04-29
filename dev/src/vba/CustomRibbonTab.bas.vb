@@ -19,6 +19,7 @@ Option Explicit
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 Private G_Ribbon As Object
+Private G_TemplateVersion As String
 
 Private Sub onLoad(rb As Object)
     Debug.Print "Custon ribbon loaded"
@@ -26,18 +27,27 @@ Private Sub onLoad(rb As Object)
     CustomRibbonTab.G_Ribbon.ActivateTab "PowerAuditor"
 End Sub
 
-
 Private Sub RibbonOnChange(control As Object, val)
     Worksheets("PowerAuditor").Range(control.id).Value2 = val
 End Sub
 
-
-Private Sub GetEnabled(control As Object, ByRef enabled)
+Private Sub isDevMode(control As Object, ByRef enabled)
     enabled = Common.isDevMode()
 End Sub
 
-
-Private Sub GetText(control As IRibbonControl, ByRef text)
-    text = Worksheets("PowerAuditor").Range(control.id).Value2
+Private Sub getVersion(control As IRibbonControl, ByRef text)
+    On Error Resume Next
+    text = Range(control.id).Value2
+    Err.Clear
 End Sub
 
+Private Sub lastUpdate(control As IRibbonControl, ByRef text)
+    Debug.Print "Getting LastUpdate"
+    text = Common.trim(IOFile.getOutpoutFromShellCmd(IOFile.getPowerAuditorPath() & "\PowerAuditor_LastUpdateVulndb.bat "))
+End Sub
+
+Public Sub invalidAlltext()
+    On Error Resume Next
+    CustomRibbonTab.G_Ribbon.InvalidateControl "TemplateVersion"
+    Err.Clear
+End Sub
