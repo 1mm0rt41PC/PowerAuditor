@@ -290,14 +290,16 @@ Public Sub exportVulnToGit(control As Object)
             Next i
             sPath = IOFile.getNotableFile(name)
             If Not IOFile.isFile(sPath) Then
-                Call IOFile.fileSetContent(sPath, "---" & _
+                Dim mo: mo = Month(Now())
+                If mo < 10 Then mo = "0" & mo
+                Call IOFile.fileSetContent(sPath, "---" & vbLf & _
                 "title: " & name & vbLf & _
-                "created: '2019-04-01T12:32:05.399Z'" & vbLf & _
-                "modified: '2019-04-01T12:34:53.873Z'" & vbLf & _
+                "created: '" & Year(Now()) & "-" & mo & "-" & Day(Now()) & "T" & Split(Now(), " ")(1) & "Z'" & vbLf & _
+                "modified: '" & Year(Now()) & "-" & mo & "-" & Day(Now()) & "T" & Split(Now(), " ")(1) & "Z'" & vbLf & _
                 "tags: [Pentest/Fiche de vuln/A trier/]" & vbLf & _
                 "---" & vbLf & _
                 "" & vbLf & _
-                "# 1. OSINT" & vbLf & _
+                "# 1. " & name & vbLf & _
                 "" & vbLf & _
                 "" & vbLf)
             End If
@@ -309,5 +311,3 @@ Public Sub exportVulnToGit(control As Object)
     If Not IOFile.git("push -u origin master") Then Exit Sub
     MsgBox "Export done"
 End Sub
-
-
