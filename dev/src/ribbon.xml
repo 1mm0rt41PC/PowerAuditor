@@ -26,7 +26,6 @@ https://www.rondebruin.nl/win/s2/win003.htm
 -->
 <customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="CustomRibbonTab.onLoad">
 	<ribbon startFromScratch="false">
-		<qat/>
 		<tabs>
 			<tab id="PowerAuditor" label="PowerAuditor" insertBeforeQ="TabFormat">
 				<group id="Reports" label="Reports" autoScale="true">
@@ -40,6 +39,8 @@ https://www.rondebruin.nl/win/s2/win003.htm
 				</group>
 				<group id="Dev" label="Dev" autoScale="true">
 					<button id="toProd" label="Send template to prod" getEnabled="CustomRibbonTab.isDevMode" imageMso="SendStatusReport" onAction="ThisWorkbook.toProd"/>
+				</group>
+				<group id="Version" label="Version" autoScale="true">
 					<editBox id="PowerAuditorVersion" imageMso="OpenAttachedCalendar" label="PowerAuditor version" getText="CustomRibbonTab.getVersion" enabled="false" sizeString="99999999999999"/>
 					<editBox id="TemplateVersion" imageMso="OpenAttachedCalendar" label="Template version" getText="CustomRibbonTab.getVersion" enabled="false" sizeString="99999999999999"/>
 					<editBox id="VulnDBVersion" imageMso="OpenAttachedCalendar" label="VulnDB version" getText="CustomRibbonTab.LastUpdate" enabled="false" sizeString="99999999999999"/>

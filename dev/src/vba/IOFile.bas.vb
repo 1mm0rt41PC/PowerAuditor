@@ -88,7 +88,7 @@ Public Function renameDocument(inst, ext As String, pType As String, Optional By
     
     Debug.Print "Setting file properties for " & fileName
     With inst
-        .BuiltinDocumentProperties("Title") = "Security audit of " & getInfo("TARGET") & " for " & getInfo("CLIENT") & " by " & corp & " v" & getInfo("VERSION_DATE")
+        .BuiltinDocumentProperties("Title") = "Security audit of " & getInfo("TARGET") & " for " & getInfo("CLIENT") & " by " & corp & " v" & Xls.getVersionDate()
         .BuiltinDocumentProperties("Subject") = .BuiltinDocumentProperties("Title")
         .BuiltinDocumentProperties("Author") = getFromO365("FriendlyName")
         .BuiltinDocumentProperties("Manager") = RT.getManager()

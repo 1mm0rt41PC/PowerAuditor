@@ -50,7 +50,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, ByRef Cancel As Boole
     End If
     Debug.Print "Setting file properties for TEMPLATE"
     With ThisWorkbook
-        .BuiltinDocumentProperties("Title") = "Security audit of <hidden> for <secret> by 1mm0rt41PC v" & getInfo("VERSION_DATE")
+        .BuiltinDocumentProperties("Title") = "Security audit of <hidden> for <secret> by 1mm0rt41PC v" & Xls.getVersionDate()
         .BuiltinDocumentProperties("Subject") = .BuiltinDocumentProperties("Title")
         .BuiltinDocumentProperties("Author") = getFromO365("FriendlyName")
         .BuiltinDocumentProperties("Manager") = "1mm0rt41PC"
@@ -111,7 +111,7 @@ Public Sub exportExcelToWordTemplate(control As Object)
     Call Word.setCCVal(wDoc, "CLIENT", getInfo("CLIENT"))
     Call Word.setCCVal(wDoc, "TARGET", getInfo("TARGET"))
     Call Word.setCCVal(wDoc, "SCOPE", getInfo("SCOPE"))
-    Call Word.setCCVal(wDoc, "VERSION_DATE", getInfo("VERSION_DATE"))
+    Call Word.setCCVal(wDoc, "VERSION_DATE", Xls.getVersionDate())
     Call Word.setCCVal(wDoc, "BEGIN_DATE", getInfo("BEGIN_DATE"))
     Call Word.setCCVal(wDoc, "END_DATE", getInfo("END_DATE"))
     Call Word.setCCVal(wDoc, "LEVEL", cleaupScoreMesg(getInfo("LEVEL")))
@@ -156,6 +156,7 @@ Sub exportFinalStaticsDocuments(control As Object)
     If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
+    Call Word.setCCVal(wDoc, "VERSION_DATE", Xls.getVersionDate())
     Call RT.exportFinalStaticsDocuments(wDoc, ws)
     Call IOFile.runCmd("explorer.exe " & ThisWorkbook.Path & "\output", 1, False)
     MsgBox "Generated"

@@ -198,7 +198,7 @@ Public Sub exportPowerauditorToXlsx(Optional aSheetsNewName As Variant = Nothing
     Dim ws_ex As Workbook
     Set ws_ex = Workbooks.Add
     Dim ws As Worksheet
-    Dim sFilename As String: sFilename = ThisWorkbook.Path & "\output\" & RT.getExcelFilename() & ".xlsx"
+    Dim sFilename As String: sFilename = ThisWorkbook.Path & "\output\" & RT.getExcelFilename() & "xlsx"
     Dim sCorp As String: sCorp = RT.getCorp
     Dim iRow As Integer: iRow = 1
     If IsMissing(aSheetsNewName) Then aSheetsNewName = Array()
@@ -214,7 +214,7 @@ Public Sub exportPowerauditorToXlsx(Optional aSheetsNewName As Variant = Nothing
     
     Debug.Print "Setting file properties for " & sFilename
     With ws_ex
-        .BuiltinDocumentProperties("Title") = "Security audit of " & getInfo("TARGET") & " for " & getInfo("CLIENT") & " by " & sCorp & " v" & getInfo("VERSION_DATE")
+        .BuiltinDocumentProperties("Title") = "Security audit of " & getInfo("TARGET") & " for " & getInfo("CLIENT") & " by " & sCorp & " v" & Xls.getVersionDate()
         .BuiltinDocumentProperties("Subject") = .BuiltinDocumentProperties("Title")
         .BuiltinDocumentProperties("Author") = getFromO365("FriendlyName")
         .BuiltinDocumentProperties("Manager") = RT.getManager()
@@ -239,3 +239,15 @@ Public Sub exportPowerauditorToXlsx(Optional aSheetsNewName As Variant = Nothing
     Application.DisplayAlerts = True
 End Sub
 
+
+Public Function getVersionDate() As String
+    Dim VERSION_DATE As String: VERSION_DATE = getInfo("VERSION_DATE")
+    If Common.isEmptyString(VERSION_DATE) Then
+        VERSION_DATE = Year(Date) & "-"
+        If Month(Date) < 10 Then VERSION_DATE = VERSION_DATE & "0"
+        VERSION_DATE = VERSION_DATE & Month(Date) & "-"
+        If Day(Date) < 10 Then VERSION_DATE = VERSION_DATE & "0"
+        VERSION_DATE = VERSION_DATE & Day(Date)
+    End If
+    getVersionDate = VERSION_DATE
+End Function
