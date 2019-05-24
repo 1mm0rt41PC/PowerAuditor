@@ -99,7 +99,7 @@ Func git($sRepo)
 		If $sRepo == '' Then
 			$sRepo = 'main'
 		EndIf
-		MsgBox(0, 'AutoUpdater for PowerAuditor', 'There is an error when pulling the repo >' & $sRepo & '<' & @CRLF & $sOutput, 3)
+		MsgBox(0, 'AutoUpdater for PowerAuditor', 'There is an error when pulling the repo >' & $sRepo & '<' & @CRLF & $sOutput, 10)
 	EndIf
 EndFunc   ;==>git
 
