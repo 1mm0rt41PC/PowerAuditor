@@ -119,7 +119,7 @@ Public Sub resizeUpTable(wDoc As Object, title As String, nbVuln As Integer)
         Debug.Print "[!][resizeUpTable] Not enough vulnerabilities !"
         Exit Sub
     End If
-    While myTab.Rows.Count > nbVuln
+    While myTab.Rows.Count > nbVuln + 1
         myTab.Rows.Item(3).Delete
     Wend
     While myTab.Rows.Count <= nbVuln
@@ -148,6 +148,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Dim naturalTableColor2: naturalTableColor2 = ws.Cells(3, 1).DisplayFormat.Interior.color
     Dim cc As Object
     Dim i As Integer
+    Dim textStartsWith As String
     While ws.Cells(2, iCol).Value2 <> ""
         cellColor = ws.Cells(iRow, iCol).DisplayFormat.Interior.color
         Set cc = wDoc.SelectContentControlsByTitle("VLN_" & ws.Cells(2, iCol).Value2 & "_" & id)
@@ -157,7 +158,11 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
                 If cellColor <> ThisWorkbook.G_naturalTableColor1 And cellColor <> ThisWorkbook.G_naturalTableColor2 Then             ' Bleu du tableau
                     .Cells.Item(1).Shading.BackgroundPatternColor = cellColor
                 End If
-                .text = Common.cleaupScoreMesg(ws.Cells(iRow, iCol).Value2)
+                If IsNumeric(Mid(ws.Cells(iRow, iCol).Value2, 1, 1)) And Mid(ws.Cells(iRow, iCol).Value2, 2, 3) = " - " Then
+                    .text = Common.cleaupScoreMesg(ws.Cells(iRow, iCol).Value2)
+                Else
+                    .text = ws.Cells(iRow, iCol).Value2
+                End If
             End With
         Next
         iCol = iCol + 1
