@@ -297,7 +297,7 @@ Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFull
     cc.Range.Paragraphs.Alignment = 0
     cc.Range.Paragraphs.Style = wdStyleNormal
     
-    Dim ext As String: ext = IOFile.getFileExt(sFullpath)
+    Dim ext As String: ext = LCase(IOFile.getFileExt(sFullpath))
     If ext = "png" Or ext = "jpg" Or ext = "jpeg" Or ext = "bmp" Then
         Dim wrdPic: Set wrdPic = cc.Range.InlineShapes.AddPicture(fileName:=sFullpath, LinkToFile:=False, SaveWithDocument:=True)
         'wrdPic.ScaleHeight = 50
