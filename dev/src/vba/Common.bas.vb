@@ -178,7 +178,7 @@ Public Function randomString(Length As Integer)
     
     'Test Length Input
     If Length < 1 Then
-        MsgBox "Length variable must be greater than 0"
+        MsgBox "Length variable must be greater than 0", vbSystemModal + vbCritical + vbOKOnly, "PowerAuditor"
         Exit Function
     End If
     

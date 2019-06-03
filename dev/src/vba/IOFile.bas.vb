@@ -128,7 +128,7 @@ Public Function git(sArgs As String, Optional sRepo As String = "vulndb") As Boo
     If ret <> "0" Then
         ret = Common.trim(fileGetContent(tmpFile & ".log"))
         If InStr(1, ret, "nothing to commit, working tree clean") = 0 Then
-            MsgBox "The command git " & sArgs & vbCrLf & "Returned:" & vbCrLf & ret, vbOKOnly, "Error with git"
+            MsgBox "The command git " & sArgs & vbCrLf & "Returned:" & vbCrLf & ret, vbOKOnly + vbCritical + vbSystemModal, "Error with git"
             git = False
         Else
             git = True

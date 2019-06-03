@@ -72,7 +72,7 @@ End Function
 
 Public Sub loadExcelSheet()
     Dim RT As String: RT = getInfo("REPORT_TYPE")
-    If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion) = vbNo Then Exit Sub
+    If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     Application.DisplayAlerts = False
     Dim ws_main As Worksheet: Set ws_main = ThisWorkbook.Worksheets("PowerAuditor")
        
@@ -89,7 +89,7 @@ Public Sub loadExcelSheet()
     ElseIf IOFile.isFile(sPath & ".xlsm") Then
         sPath = sPath & ".xlsm"
     Else
-        MsgBox ("Template not found !")
+        Call MsgBox("Template not found !", vbSystemModal + vbCritical, "PowerAuditor")
         Exit Sub
     End If
     

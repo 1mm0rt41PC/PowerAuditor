@@ -60,7 +60,7 @@ Public Sub exportVisualBasicCode()
         Call VBComponent.Export(Path)
         
         If Err.Number <> 0 Then
-            Call MsgBox("Failed to export " & VBComponent.name & " to " & Path, vbCritical)
+            Call MsgBox("Failed to export " & VBComponent.name & " to " & Path, vbCritical + vbSystemModal, "PowerAuditor")
         Else
             Debug.Print "Exported " & Left$(VBComponent.name & ":" & Space(Padding), Padding) & Path
         End If
@@ -88,7 +88,7 @@ Public Static Sub VBAFromCommonSrc()
     
     If IOFile.isFile(ThisWorkbook.FullName & ".lock") Then
         Call IOFile.removeFile(ThisWorkbook.FullName & ".lock")
-        MsgBox "Unable to call VBAFromCommonSrc, last call has crashed !", vbOKOnly, "PowerAuditor"
+        MsgBox "Unable to call VBAFromCommonSrc, last call has crashed !", vbOKOnly + vbSystemModal + vbCritical, "PowerAuditor"
         Exit Sub
     End If
     Call IOFile.fileSetContent(ThisWorkbook.FullName & ".lock", "")

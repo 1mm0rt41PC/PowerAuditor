@@ -175,7 +175,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Dim subCC As Object
     Dim sPath As String: sPath = IOFile.getVulnDBPath(name)
     If IOFile.isFile(sPath & "\desc.html") Then
-        If MsgBox("Import data from VulnDB for the vulnerability >" & name & "< ?", vbYesNo, "PowerAuditor") = vbYes Then
+        If MsgBox("Import data from VulnDB for the vulnerability >" & name & "< ?", vbYesNo + vbSystemModal + vbQuestion, "PowerAuditor") = vbYes Then
             For i = 0 To UBound(toImportHTML)
                 If IOFile.isFile(sPath & "\" & toImportHTML(i) & ".html") Then
                     Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & toImportHTML(i) & "_" & id)(1)

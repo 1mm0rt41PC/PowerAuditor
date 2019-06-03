@@ -45,7 +45,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, ByRef Cancel As Boole
     If G_SaveAsOnGoing Then Exit Sub
     If SaveAsUI = False And IOFile.getPowerAuditorPath() & "PowerAuditor_last.xlsm" = ThisWorkbook.FullName Then
         Cancel = True
-        MsgBox "Your are not allowed to save that file", vbOKOnly, "PowerAuditor"
+        MsgBox "Your are not allowed to save that file", vbOKOnly + vbSystemModal + vbInformation, "PowerAuditor"
         Exit Sub
     End If
     Debug.Print "Setting file properties for TEMPLATE"
@@ -80,7 +80,7 @@ Private Sub Workbook_Open()
     ' On install les pré-requis
     If Not Common.isDevMode() Then
         If Not IOFile.isFile(IOFile.getPowerAuditorPath() & "\desktop.ini") Then
-            MsgBox "It seems that the powerauditor dependencies are not installed." & vbNewLine & "The installation of dependencies ( git) and their configurations will start now....", vbOKOnly, "PowerAuditor"
+            MsgBox "It seems that the powerauditor dependencies are not installed." & vbNewLine & "The installation of dependencies ( git) and their configurations will start now....", vbOKOnly + vbSystemModal + vbInformation, "PowerAuditor"
             Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\install\setup.bat", 1, True)
         End If
     End If
@@ -94,7 +94,11 @@ End Sub
 
 
 Public Sub exportExcelToWordTemplate(control As Object)
-    If MsgBox("Do you want generate the word template ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
+    If MsgBox("Do you want generate the word template ?", vbYesNo + vbQuestion + vbSystemModal) = vbNo Then Exit Sub
+    If Common.isEmptyString(Common.getInfo("LEVEL")) Then
+        Call MsgBox("Please set the >Global level< !", vbOKOnly + vbInformation + vbSystemModal)
+        Exit Sub
+    End If
     
     ' On renome le template avec le bon nom
     If Not Common.isDevMode() Then
@@ -137,35 +141,44 @@ Public Sub exportExcelToWordTemplate(control As Object)
     
     Call RT.finish(wDoc, ws, nbVuln)
     wDoc.Fields.Update
-    MsgBox "Generation done :-)"
+    MsgBox "Generation done :-)", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
 
 
 
 Sub genSynthesis(control As Object)
-    If MsgBox("Do you want generate the SYTHESIS ?" & vbNewLine & "This action will >>>REMOVE<<< the current SYTHESIS !!!!!!!!", vbYesNo + vbQuestion) = vbNo Then Exit Sub
+    If MsgBox("Do you want generate the SYTHESIS ?" & vbNewLine & "This action will >>>REMOVE<<< the current SYTHESIS !!!!!!!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
+    If Common.isEmptyString(Common.getInfo("LEVEL")) Then
+        Call MsgBox("Please set the >Global level< !", vbOKOnly + vbInformation + vbSystemModal, "PowerAuditor")
+        Exit Sub
+    End If
     
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call RT.genSynthesis(wDoc, ws)
-    MsgBox "Generated"
+    MsgBox "Generated", vbInformation + vbSystemModal, "PowerAuditor"
 End Sub
 
 
 Sub exportFinalStaticsDocuments(control As Object)
-    If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
+    If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
+    If Common.isEmptyString(Common.getInfo("LEVEL")) Then
+        Call MsgBox("Please set the >Global level< !", vbOKOnly + vbInformation + vbSystemModal, "PowerAuditor")
+        Exit Sub
+    End If
+    
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call Word.setCCVal(wDoc, "VERSION_DATE", Xls.getVersionDate())
     Call RT.exportFinalStaticsDocuments(wDoc, ws)
     Call IOFile.runCmd("explorer.exe " & ThisWorkbook.Path & "\output", 1, False)
-    MsgBox "Generated"
+    MsgBox "Generated", vbInformation + vbSystemModal, "PowerAuditor"
 End Sub
 
 
 Public Sub ToProd(control As Object)
     If Not Common.isDevMode() Then
-        MsgBox "You do not use the xlsm development file", vbOKOnly, "PowerAuditor"
+        MsgBox "You do not use the xlsm development file", vbOKOnly + vbSystemModal + vbInformation, "PowerAuditor"
         Exit Sub
     End If
     Application.DisplayAlerts = False
@@ -227,7 +240,7 @@ End Sub
 
 
 Public Sub fillExcelWithProof(control As Object)
-    If MsgBox("Do you want fill this excel with your proof ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
+    If MsgBox("Do you want fill this excel with your proof ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
 
     Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
@@ -258,12 +271,12 @@ Public Sub fillExcelWithProof(control As Object)
         pFile = Dir
     Loop
     
-    MsgBox "Import done"
+    MsgBox "Import done", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
 
 
 Public Sub exportVulnToGit(control As Object)
-    If MsgBox("Do you want to export your vulnerabilities to the GIT ?", vbYesNo + vbQuestion) = vbNo Then Exit Sub
+    If MsgBox("Do you want to export your vulnerabilities to the GIT ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     Dim iRow As Integer: iRow = 3
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
@@ -279,7 +292,7 @@ Public Sub exportVulnToGit(control As Object)
     If Not IOFile.git("pull") Then Exit Sub
     While ws.Cells(iRow, 1).Value2 <> ""
         name = ws.Cells(iRow, toExportKeyCol).Value2
-        If MsgBox("Export >" & name & "< to the GIT ?", vbYesNo + vbQuestion) = vbYes Then
+        If MsgBox("Export >" & name & "< to the GIT ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbYes Then
             Debug.Print "Export VULN to GIT: " & name
             sPath = IOFile.getVulnDBPath(name, True)
             For i = 0 To UBound(toExportText)
@@ -310,5 +323,5 @@ Public Sub exportVulnToGit(control As Object)
         iRow = iRow + 1
     Wend
     If Not IOFile.git("push -u origin master") Then Exit Sub
-    MsgBox "Export done"
+    MsgBox "Export done", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
