@@ -36,3 +36,107 @@ Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean
         Cancel = True
     End If
 End Sub
+
+
+Public Function getCorp() As String
+    RT.m_return = "Example Corp"
+    getCorp = RT.m_return ' Bug dynamic call
+End Function
+
+
+Public Function getManager() As String
+    RT.m_return = "God him self"
+    getManager = RT.m_return ' Bug dynamic call
+End Function
+
+
+Public Function getReportFilename(pType As String) As String
+    Dim auditType As String
+    If Common.getLang() = "FR" Then
+        auditType = "TI"
+    Else
+        auditType = "PT"
+    End If
+    RT.m_return = "myCorp-" & getInfo("CLIENT") & "-" & auditType & "-" & getInfo("TARGET") & "-" & pType & "-" & Mid(Replace(Xls.getVersionDate(), "-", ""), 3) & "."
+    getReportFilename = RT.m_return
+End Function
+
+
+Public Function getExcelFilename() As String
+    If Common.getLang() = "FR" Then
+        RT.m_return = getReportFilename("RS")
+    Else
+        RT.m_return = getReportFilename("SR")
+    End If
+    getExcelFilename = RT.m_return
+End Function
+
+
+Public Function getExportFields_HTML() As Variant
+    RT.m_return = Array("descDetails", "fixDetails", "fixDetails") ' Bug dynamic call
+    getExportFields_HTML = RT.m_return ' Bug dynamic call
+End Function
+
+
+Public Function getExportFields_TXT() As Variant
+    RT.m_return = Array("category", "desc", "fix", "risk", "fixtype") ' Bug dynamic call
+    getExportFields_TXT = RT.m_return ' Bug dynamic call
+End Function
+
+
+Public Function getExportField_KeyColumn(ws As Worksheet) As Integer
+    RT.m_return = Xls.getColLocation(ws, "name") ' Bug dynamic call
+    getExportField_KeyColumn = RT.m_return ' Bug dynamic call
+End Function
+
+
+Public Sub initWordExport(wDoc As Object, ws As Worksheet)
+    ' Do what you want here BEFORE export Excel to Word
+End Sub
+
+
+Public Sub finalizeWordExport(wDoc As Object, ws As Worksheet, nbVuln As Integer)
+	' Do what you want here AFTER export Excel to Word
+End Sub
+
+
+Public Sub insertVuln(wDoc As Object, ws As Worksheet, line As Integer)
+	' This function allow you to insert vulnerabilities
+	' If you want, you can use the default function:
+    Call Word.insertVuln(wDoc, ws, line)
+End Sub
+
+
+Public Sub genSynthesis(wDoc As Object, ws As Worksheet)
+	' Do stuff to make a synthesis in the word document
+End Sub
+
+
+Public Sub exportFinalStaticsDocuments(wDoc As Object, ws As Worksheet)
+	' Do stuff to export the Word
+    ThisWorkbook.Save
+    IOFile.renameDocument wDoc, "docx", "TEMPLATE", deleteOld:=True
+    ThisWorkbook.Save
+	
+	Debug.Print "Generate all documents"
+	Dim myDocx: myDocx = IOFile.renameDocument(wDoc, "docx", "DETAIL", deleteOld:=False)
+	Dim wd_Exp as Object
+	Set wd_Exp = wDoc.Application.Documents.Open(myDocx)
+	
+    Call Word.removeHiddenText(wd_Exp)
+    wd_Exp.Fields.Update
+    Call Word.removeAllContentControls(wd_Exp)
+    wd_Exp.Fields.Update
+    wd_Exp.Save
+    wd_Exp.Close
+	set wd_Exp = Nothing
+	
+	
+    Debug.Print "Generate XLSX"
+    If Common.getLang() = "EN" Then
+        Call Xls.exportPowerauditorToXlsx(Array("Vulnerabilities"))
+    Else
+        Call Xls.exportPowerauditorToXlsx(Array("Vulnérabilités"))
+    End If
+    Application.DisplayAlerts = True
+End Sub

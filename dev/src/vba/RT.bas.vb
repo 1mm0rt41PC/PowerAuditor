@@ -63,8 +63,8 @@ Public Function getExportField_KeyColumn(ws As Worksheet) As Integer
 End Function
 
 
-Public Sub init(wDoc As Object, ws As Worksheet)
-    Call Application.Run(getRT() & ".init", wDoc, ws)
+Public Sub initWordExport(wDoc As Object, ws As Worksheet)
+    Call Application.Run(getRT() & ".initWordExport", wDoc, ws)
 End Sub
 
 
@@ -73,8 +73,8 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
 End Sub
 
 
-Public Sub finish(wDoc As Object, ws As Worksheet, nbVuln As Integer)
-    Call Application.Run(getRT() & ".finish", wDoc, ws, nbVuln)
+Public Sub finalizeWordExport(wDoc As Object, ws As Worksheet, nbVuln As Integer)
+    Call Application.Run(getRT() & ".finalizeWordExport", wDoc, ws, nbVuln)
 End Sub
 
 

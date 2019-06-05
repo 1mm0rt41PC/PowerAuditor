@@ -96,6 +96,8 @@ End Sub
 Public Sub exportExcelToWordTemplate(control As Object)
     If MsgBox("Do you want generate the word template ?", vbYesNo + vbQuestion + vbSystemModal) = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
+        Worksheets("PowerAuditor").Activate
+        Worksheets("PowerAuditor").Range("LEVEL").Select
         Call MsgBox("Please set the >Global level< !", vbOKOnly + vbInformation + vbSystemModal)
         Exit Sub
     End If
@@ -132,14 +134,14 @@ Public Sub exportExcelToWordTemplate(control As Object)
     G_naturalTableColor1 = ws.Cells(2, 1).DisplayFormat.Interior.color
     G_naturalTableColor2 = ws.Cells(3, 1).DisplayFormat.Interior.color
     
-    Call RT.init(wDoc, ws)
+    Call RT.initWordExport(wDoc, ws)
     While ws.Cells(iRow, 1).Value2 <> ""
         Call RT.insertVuln(wDoc, ws, iRow)
         iRow = iRow + 1
     Wend
     nbVuln = iRow - 3
     
-    Call RT.finish(wDoc, ws, nbVuln)
+    Call RT.finalizeWordExport(wDoc, ws, nbVuln)
     wDoc.Fields.Update
     MsgBox "Generation done :-)", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
@@ -149,6 +151,8 @@ End Sub
 Sub genSynthesis(control As Object)
     If MsgBox("Do you want generate the SYTHESIS ?" & vbNewLine & "This action will >>>REMOVE<<< the current SYTHESIS !!!!!!!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
+        Worksheets("PowerAuditor").Activate
+        Worksheets("PowerAuditor").Range("LEVEL").Select
         Call MsgBox("Please set the >Global level< !", vbOKOnly + vbInformation + vbSystemModal, "PowerAuditor")
         Exit Sub
     End If
@@ -163,6 +167,8 @@ End Sub
 Sub exportFinalStaticsDocuments(control As Object)
     If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
+        Worksheets("PowerAuditor").Activate
+        Worksheets("PowerAuditor").Range("LEVEL").Select
         Call MsgBox("Please set the >Global level< !", vbOKOnly + vbInformation + vbSystemModal, "PowerAuditor")
         Exit Sub
     End If
