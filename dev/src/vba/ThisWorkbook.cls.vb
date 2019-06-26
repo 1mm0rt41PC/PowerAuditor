@@ -305,9 +305,20 @@ Public Sub exportVulnToGit(control As Object)
                 Call IOFile.fileSetContent(sPath & "\" & toExportText(i) & ".html", ws.Cells(iRow, Xls.getColLocation(ws, toExportText(i))).Value2)
             Next i
             For i = 0 To UBound(toExportHTML)
-                ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
-                wDoc.SelectContentControlsByTitle("VLN_" & toExportHTML(i) & "_" & ws.Cells(iRow, COL_ID).Value2)(1).Range.ExportFragment sPath & "\" & toExportHTML(i) & ".html", wdFormatHTML
+                With wDoc.SelectContentControlsByTitle("VLN_" & Replace(toExportHTML(i), "*", "") & "_" & ws.Cells(iRow, COL_ID).Value2)
+                    If .Count = 1 Then
+                        If InStr(toExportHTML(i), "*") = 0 Or .Item(1).Tag = "*" Then
+                            ' Création d'une ligne vide afin de permettre l'export HTML
+                            .Item(1).Range.InsertAfter Chr(13)
+                            ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
+                            .Item(1).Range.ExportFragment sPath & "\" & Replace(toExportHTML(i), "*", "") & ".html", wdFormatHTML
+                            ' Suppression de la ligne vide
+                            wDoc.Range(.Item(1).Range.End - 1, .Item(1).Range.End).text = ""
+                        End If
+                    End If
+                End With
             Next i
+
             sPath = IOFile.getNotableFile(name)
             If Not IOFile.isFile(sPath) Then
                 Dim mo: mo = Month(Now())

@@ -143,7 +143,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Dim iCol As Integer: iCol = 1
     Dim id As Integer: id = iRow - 2
     Dim cellColor As Long
-    Call createVulnId(wDoc, ws, id)
+    Dim isNewVulnInWord As Boolean: isNewVulnInWord = createVulnId(wDoc, ws, id)
     Dim naturalTableColor1: naturalTableColor1 = ws.Cells(2, 1).DisplayFormat.Interior.color
     Dim naturalTableColor2: naturalTableColor2 = ws.Cells(3, 1).DisplayFormat.Interior.color
     Dim cc As Object
@@ -169,22 +169,24 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Wend
     
     
+    ' /!\ On ne va pas plus loin si la fiche de vuln existait déjà
+    If Not isNewVulnInWord Then Exit Sub
+    
+    
     ' On insert les preuves qui proviennent du dossier VULNDB
     Dim toImportHTML As Variant: toImportHTML = RT.getExportFields_HTML()
     Set cc = wDoc.SelectContentControlsByTitle("VLN_exploit_" & id)(1)
     Dim subCC As Object
     Dim sPath As String: sPath = IOFile.getVulnDBPath(name)
     If IOFile.isFile(sPath & "\desc.html") Then
-        If MsgBox("Import data from VulnDB for the vulnerability >" & name & "< ?", vbYesNo + vbSystemModal + vbQuestion, "PowerAuditor") = vbYes Then
-            For i = 0 To UBound(toImportHTML)
-                If IOFile.isFile(sPath & "\" & toImportHTML(i) & ".html") Then
-                    Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & toImportHTML(i) & "_" & id)(1)
-                    If Common.isEmptyString(Common.trim(subCC.Range.text, "x")) Then
-                        Call subCC.Range.InsertFile(sPath & "\" & toImportHTML(i) & ".html", , , False, False)
-                    End If
+        For i = 0 To UBound(toImportHTML)
+            If IOFile.isFile(sPath & "\" & Replace(toImportHTML(i), "*", "") & ".html") Then
+                Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & Replace(toImportHTML(i), "*", "") & "_" & id)(1)
+                If Common.isEmptyString(Common.trim(subCC.Range.text, "x")) Then
+                    Call subCC.Range.InsertFile(sPath & "\" & Replace(toImportHTML(i), "*", "") & ".html", , , False, False)
                 End If
-            Next i
-        End If
+            End If
+        Next i
     End If
     
     ' On insert les preuves qui proviennent du dossier VULN
@@ -234,9 +236,9 @@ End Sub
 ' @param[in] {Worksheet} ws:             Handle to the Worksheet taht contain the list of all vulnerabilities
 ' @param[in] {Integer} id:               The row ID (id=iRow-2 (2 = the header (line 1) and for the script line (line 2)))
 '                                        in the {ws} who contain a vulnerability
-' @return [NONE]
+' @return FALSE if the vulnerability already exists in the word. TRUE if a new part about this vulnerability is created
 '
-Private Sub createVulnId(wDoc As Object, ws As Worksheet, id As Integer)
+Private Function createVulnId(wDoc As Object, ws As Worksheet, id As Integer) As Boolean
     Dim VLN_Template As Object
     Dim ccs As Object
     Dim cc_copy As Object
@@ -244,7 +246,10 @@ Private Sub createVulnId(wDoc As Object, ws As Worksheet, id As Integer)
     idName = ws.Cells(2, ColumnIndex:=1).Value2
     idName = idName & "_" & id
     
-    If wDoc.SelectContentControlsByTitle("VLN_" & idName).Count <> 0 Then Exit Sub
+    If wDoc.SelectContentControlsByTitle("VLN_" & idName).Count <> 0 Then
+        createVulnId = False
+        Exit Function
+    End If
    
     ' ID n'existe pas
     ' Copy le template
@@ -269,7 +274,8 @@ Private Sub createVulnId(wDoc As Object, ws As Worksheet, id As Integer)
         ccs.Item(i).title = ccs.Item(i).title & "_" & id
     Next
     cc_copy.Delete False
-End Sub
+    createVulnId = True
+End Function
 
 
 '===============================================================================

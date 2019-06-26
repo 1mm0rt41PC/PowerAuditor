@@ -16,6 +16,7 @@
 ; along with this program; see the file COPYING. If not, write to the
 ; Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #NoTrayIcon
+#include <TrayConstants.au3> ; Required for the $TRAY_ICONSTATE_SHOW constant.
 #AutoIt3Wrapper_Res_HiDpi=1
 #AutoIt3Wrapper_Run_Tidy=y
 #Tidy_Parameters=/nsdp
@@ -35,7 +36,8 @@
 #pragma compile(CompanyName, 'None')
 Opt('TrayAutoPause', 0)
 Opt('TrayIconDebug', 0)
-Opt('TrayIconHide', 1)
+;~ Opt('TrayIconHide', 1)
+Opt('TrayMenuMode', 3) ; The default tray menu items will not be shown and items are not checked when selected. These are options 1 and 2 for TrayMenuMode.
 Opt('GUICloseOnESC', False)
 
 #include <File.au3>
@@ -45,8 +47,11 @@ Opt('GUICloseOnESC', False)
 #include <GUIConstantsEx.au3>
 
 Global Const $sPIDFile = @TempDir & '\AutoUpdater-PowerAuditor.pid'
+Global $iCounterLastError = 0
 
 DllCall('User32.dll', 'bool', 'SetProcessDPIAware') ; Support du DPI
+TraySetState($TRAY_ICONSTATE_SHOW) ; Show the tray menu.
+TraySetToolTip('AutoUpdate for PowerAuditor')
 
 ; We avoid to boot multiple time
 If FileExists($sPIDFile) And ProcessExists(FileRead($sPIDFile)) Then Exit
@@ -65,10 +70,15 @@ FileWrite($sPIDFile, @AutoItPID)
 
 Local $iLastTimeExeUpdated = FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING)
 Local $iLoop = 0
+Global $idForceUpdate = TrayCreateItem('Force update')
+Local $idExit = TrayCreateItem('Exit')
+Global $tray
 While 1
-	If GUIGetMsg() == $GUI_EVENT_CLOSE Then ExitLoop
-	Sleep(5 * 1000)
-	If $iLoop > 100 Then
+	$tray = TrayGetMsg()
+	If GUIGetMsg() == $GUI_EVENT_CLOSE Or $tray == $idExit Then ExitLoop
+	Sleep(100)
+	If $iLoop > 10 * 60 * 60 Or $tray == $idForceUpdate Then
+		If $tray == $idForceUpdate Then TrayTip('PowerAuditor', 'Updating all repositories', 5, $TIP_ICONASTERISK)
 		$iLoop = -1
 		git('')
 		git('vulndb')
@@ -86,6 +96,13 @@ While 1
 WEnd
 
 
+Func myMsgBox($msg)
+	If $iCounterLastError == @MDAY And $tray <> $idForceUpdate Then Return Null
+	TrayTip('PowerAuditor', $msg, 5, $TIP_ICONEXCLAMATION)
+	$iCounterLastError = @MDAY
+EndFunc   ;==>myMsgBox
+
+
 Func git($sRepo)
 	Local $iPID = Run('git pull', @WorkingDir & '\' & $sRepo, @SW_HIDE, BitOR($STDERR_CHILD, $STDOUT_CHILD))
 	ProcessWaitClose($iPID)
@@ -99,9 +116,10 @@ Func git($sRepo)
 		If $sRepo == '' Then
 			$sRepo = 'main'
 		EndIf
-		MsgBox(0, 'AutoUpdater for PowerAuditor', 'There is an error when pulling the repo >' & $sRepo & '<' & @CRLF & $sOutput, 10)
+		myMsgBox('There is an error when pulling the repo >' & $sRepo & '<' & @CRLF & $sOutput)
 	EndIf
 EndFunc   ;==>git
+
 
 Func UpdateVulnDBFolder()
 	Local $sPath = @WorkingDir & '\vulndb'
