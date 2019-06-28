@@ -23,7 +23,7 @@
 #Au3Stripper_On
 #pragma compile(Out, ../../../bin/AutoUpdater.exe)
 #pragma compile(UPX, True)
-#pragma compile(Icon, ./iconfinder_superhero_deadpool_hero_comic_1380751.ico)
+#pragma compile(Icon, ../PowerAuditor.ico)
 #pragma compile(AutoItExecuteAllowed, False)
 #pragma compile(Console, False)
 #pragma compile(x64, True)
@@ -32,7 +32,7 @@
 #pragma compile(ProductVersion, 1.0)
 #pragma compile(FileVersion, 1.0) ; The last parameter is optional.
 #pragma compile(LegalCopyright, © 1mm0rt41PC)
-#pragma compile(LegalTrademarks, 'See https://github.com/ImmortalPC. Icon from https://www.iconfinder.com/icons/1380751/comic_deadpool_hero_superhero_icon by Aitor Picon')
+#pragma compile(LegalTrademarks, 'See https://github.com/1mm0rt41PC. Icon from https://www.iconfinder.com/')
 #pragma compile(CompanyName, 'None')
 Opt('TrayAutoPause', 0)
 Opt('TrayIconDebug', 0)

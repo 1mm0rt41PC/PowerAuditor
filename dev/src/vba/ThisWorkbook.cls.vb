@@ -84,12 +84,20 @@ Private Sub Workbook_Open()
             Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\install\setup.bat", 1, True)
         End If
     End If
+    
+    If IOFile.getPowerAuditorPath() & "PowerAuditor_last.xlsm" = ThisWorkbook.FullName Then
+        MsgBox "Do not open this file directly !" & vbNewLine & "Please copy this file into a new folder !", vbOKOnly + vbSystemModal + vbInformation, "PowerAuditor"
+        Application.Quit
+        Exit Sub
+    End If
         
     Call Xls.updateTemplateList
     
     ' On update les repos
     Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\bin\AutoUpdater.exe", 0, False)
     'Versionning.VBAFromCommonSrc
+    
+    Call Xls.updateTemplateList
 End Sub
 
 

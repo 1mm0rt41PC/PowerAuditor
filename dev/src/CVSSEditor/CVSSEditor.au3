@@ -23,7 +23,7 @@
 #Obfuscator_Parameters=/striponly
 #pragma compile(Out, ../../../bin/CVSSEditor.exe)
 #pragma compile(UPX, True)
-#pragma compile(Icon, ./iconfinder_superhero_deadpool_hero_comic_1380751.ico)
+#pragma compile(Icon, ../PowerAuditor.ico)
 #pragma compile(AutoItExecuteAllowed, False)
 #pragma compile(Console, True)
 #pragma compile(x64, True)
@@ -32,7 +32,7 @@
 #pragma compile(ProductVersion, 1.0)
 #pragma compile(FileVersion, 1.0) ; The last parameter is optional.
 #pragma compile(LegalCopyright, © 1mm0rt41PC)
-#pragma compile(LegalTrademarks, 'See https://github.com/ImmortalPC. Icon from https://www.iconfinder.com/icons/1380751/comic_deadpool_hero_superhero_icon by Aitor Picon')
+#pragma compile(LegalTrademarks, 'See https://github.com/1mm0rt41PC. Icon from https://www.iconfinder.com/')
 #pragma compile(CompanyName, 'None')
 Opt('TrayAutoPause', 0)
 Opt('TrayIconDebug', 0)
@@ -47,47 +47,47 @@ Opt('GUICloseOnESC', True)
 #include <GUIConstantsEx.au3>
 
 
-if $CmdLine[0] == 1 and ($CmdLine[1] == '/help' or $CmdLine[1] == '/h' or $CmdLine[1] == '/?' or $CmdLine[1] == '-h' or $CmdLine[1] == '-help' or $CmdLine[1] == '--help') then
-   ConsoleWriteError('Usage !'&@CRLF)
-   ConsoleWriteError(@AutoItExe&' : Run a new CVSS From scratch'&@CRLF)
-   ConsoleWriteError(@AutoItExe&' CVSS:3.0/AV:P/AC:H/PR:H/UI:R/S:C/C:H/I:H/A:H : Run a CVSS editor initialized with the this CVSS value'&@CRLF)
-   Exit
-endIf
+If $CmdLine[0] == 1 And ($CmdLine[1] == '/help' Or $CmdLine[1] == '/h' Or $CmdLine[1] == '/?' Or $CmdLine[1] == '-h' Or $CmdLine[1] == '-help' Or $CmdLine[1] == '--help') Then
+	ConsoleWriteError('Usage !' & @CRLF)
+	ConsoleWriteError(@AutoItExe & ' : Run a new CVSS From scratch' & @CRLF)
+	ConsoleWriteError(@AutoItExe & ' CVSS:3.0/AV:P/AC:H/PR:H/UI:R/S:C/C:H/I:H/A:H : Run a CVSS editor initialized with the this CVSS value' & @CRLF)
+	Exit
+EndIf
 
 $cvssEditor = _TempFile(@TempDir, "~", ".html")
 FileInstall('cvss.htm', $cvssEditor)
 
-DllCall("User32.dll","bool","SetProcessDPIAware"); Support du DPI
+DllCall("User32.dll", "bool", "SetProcessDPIAware") ; Support du DPI
 Local $oIE = _IECreateEmbedded()
-Local $width = @DesktopWidth/1.5
-Local $height = @DesktopHeight /1.5
-Local $hGui = GUICreate("Embedded Web control Test", $width, $height, -1, -1, $WS_OVERLAPPEDWINDOW + $WS_CLIPSIBLINGS + $WS_CLIPCHILDREN)
-Local $hIE  = GUICtrlCreateObj($oIE, 10, 10, $width-20, $height-20)
-If $CmdLine[0] == 0 then
-   _IENavigate($oIE, $cvssEditor)
+Local $width = @DesktopWidth / 1.5
+Local $height = @DesktopHeight / 1.5
+Local $hGui = GUICreate("PowerAuditor - CVSS Editor", $width, $height, -1, -1, $WS_OVERLAPPEDWINDOW + $WS_CLIPSIBLINGS + $WS_CLIPCHILDREN)
+Local $hIE = GUICtrlCreateObj($oIE, 10, 10, $width - 20, $height - 20)
+If $CmdLine[0] == 0 Then
+	_IENavigate($oIE, $cvssEditor)
 Else
-   _IENavigate($oIE, $cvssEditor&'#'&$CmdLine[1])
+	_IENavigate($oIE, $cvssEditor & '#' & $CmdLine[1])
 EndIf
 GUISetState(@SW_SHOW) ;Show GUI
 
 Local Const $iBitMask = 0x8000 ; a bit mask to strip the high word bits from the return of the function.
 Local $tag
 While 1
-   if BitAND(_WinAPI_GetAsyncKeyState($VK_ESCAPE), $iBitMask) <> 0 And WinActive($hGui) Then
-	  $tag = StringSplit(_IEPropertyGet($oIE,'locationurl'),'#')
-	  ExitLoop
-   endif
-   Switch GUIGetMsg()
-	  Case $GUI_EVENT_CLOSE
-		 $tag = StringSplit(_IEPropertyGet($oIE,'locationurl'),'#')
-		 ExitLoop
-	  Case $GUI_EVENT_RESTORE,$GUI_EVENT_MAXIMIZE,$GUI_EVENT_RESIZED,$GUI_FOCUS
-		 $size = WinGetClientSize($hGUI)
-		 GUICtrlSetPos( $hIE, 10, 10,  $size[0]-20, $size[1]-20)
-   EndSwitch
+	If BitAND(_WinAPI_GetAsyncKeyState($VK_ESCAPE), $iBitMask) <> 0 And WinActive($hGui) Then
+		$tag = StringSplit(_IEPropertyGet($oIE, 'locationurl'), '#')
+		ExitLoop
+	EndIf
+	Switch GUIGetMsg()
+		Case $GUI_EVENT_CLOSE
+			$tag = StringSplit(_IEPropertyGet($oIE, 'locationurl'), '#')
+			ExitLoop
+		Case $GUI_EVENT_RESTORE, $GUI_EVENT_MAXIMIZE, $GUI_EVENT_RESIZED, $GUI_FOCUS
+			$size = WinGetClientSize($hGui)
+			GUICtrlSetPos($hIE, 10, 10, $size[0] - 20, $size[1] - 20)
+	EndSwitch
 WEnd
 
 If $tag[0] == 2 Then
-   ConsoleWrite(StringReplace($tag[2],';',@CRLF))
+	ConsoleWrite(StringReplace($tag[2], ';', @CRLF))
 EndIf
 FileDelete($cvssEditor)

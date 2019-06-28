@@ -203,8 +203,13 @@ End Function
 
 Public Function CVSSReader(cvss As String) As String
     Dim sTmpFile As String: sTmpFile = Environ("TMP") & "\" & randomString(10)
-    Call IOFile.runCmd("cmd /c " & Common.getPowerAuditorPath() & "\bin\CVSSEditor.exe " & cvss & " > " & sTmpFile, 0, True)
+    Call IOFile.runCmd("cmd /c " & IOFile.getPowerAuditorPath() & "\bin\CVSSEditor.exe " & cvss & " > " & sTmpFile, 0, True)
+    On Error GoTo CVSSReader_err
     CVSSReader = fileGetContent(sTmpFile)
+    Call IOFile.removeFile(sTmpFile)
+    Exit Function
+CVSSReader_err:
+    CVSSReader = ""
     Call IOFile.removeFile(sTmpFile)
 End Function
 
