@@ -88,7 +88,7 @@ While 1
 		If Not FileExists($sPIDFile) Or $iLastTimeExeUpdated <> FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING) Then
 			FileDelete($sPIDFile)
 			Local $sTmpBat = _TempFile(@TempDir, '~', '.bat')
-			FileWrite($sTmpBat, 'ping -n 5 127.0.0.1' & @CRLF & 'del /F /Q "' & @ScriptFullPath & '" "' & $sTmpBat & '"')
+			FileWrite($sTmpBat, 'ping -n 5 127.0.0.1' & @CRLF & 'del /F /Q "' & @ScriptFullPath & '" "' & $sTmpBat & '"' & @CRLF & '"' & @WorkingDir & '\bin\AutoUpdater.exe"')
 			Run($sTmpBat, @WorkingDir, @SW_HIDE)
 			Exit
 		EndIf
