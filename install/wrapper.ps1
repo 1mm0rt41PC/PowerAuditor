@@ -126,9 +126,14 @@ if( (Get-ChildItem $env:USERPROFILE\.gitconfig -ErrorAction SilentlyContinue).Co
 }
 
 cmd /c mklink $env:USERPROFILE\Desktop\PowerAuditor.xlsm $env:USERPROFILE\PowerAuditor\PowerAuditor_last.xlsm
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" -Name "PowerAuditor_AutoUpdater.lnk" -Value "$env:USERPROFILE\PowerAuditor\bin\AutoUpdater.exe"
+
+$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\PowerAuditor_AutoUpdater.lnk")
+$Shortcut.TargetPath = "$env:USERPROFILE\PowerAuditor\bin\AutoUpdater.exe"
+$Shortcut.Save()
 
 # Create a lnk to the vulndb
-$WshShell = New-Object -comObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut("$($env:USERPROFILE)\Desktop\PowerAuditor.lnk")
 $Shortcut.TargetPath = "$($env:USERPROFILE)\PowerAuditor\vulndb\"
 $shortcut.IconLocation = "$($env:USERPROFILE)\PowerAuditor\install\icon.ico,0"

@@ -66,6 +66,7 @@ If Not StringInStr(FileGetLongName(@ScriptDir), FileGetLongName(@TempDir)) Then
 EndIf
 
 ; Lock the binary Singleton
+FileDelete($sPIDFile)
 FileWrite($sPIDFile, @AutoItPID)
 
 Local $iLastTimeExeUpdated = FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING)
