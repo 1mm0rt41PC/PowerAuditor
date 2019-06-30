@@ -1,0 +1,103 @@
+<!--
+' PowerAuditor - A simple script to help report writing by https://github.com/1mm0rt41PC
+'
+' Filename: PowerImporter.html
+'
+' This program is free software; you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation; either version 2 of the License, or
+' (at your option) any later version.
+'
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+'
+' You should have received a copy of the GNU General Public License
+' along with this program; see the file COPYING. If not, write to the
+' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="x-ua-compatible" content="ie=9">
+<script type="text/javascript">
+function toogleCheckbox(elt){
+	var c = elt.querySelector('input[type="checkbox"]');
+	if( c.checked ){
+		c.removeAttribute('checked');
+		c.parentElement.parentElement.style.background = '';
+	}else{
+		c.setAttribute('checked','checked');
+		c.parentElement.parentElement.style.background = 'rgba(255,0,0,0.1)'
+	}
+	var url='';
+	for(var i=0,elt=document.querySelectorAll('input[type="checkbox"]'),len=elt.length; i<len; ++i ){
+		if( elt[i].checked ){
+			url += elt[i].value+'\r\n';
+		}
+	}
+	window.location.hash='#'+encodeURIComponent(url);
+}
+
+function searchbar_keyup( ev )
+{
+	var val = this.value.toLowerCase();
+	for( var i=0,elt=document.querySelectorAll('.vulnname'),len=elt.length; i<len; ++i ){
+		console.log(elt[i].parentElement.style.display);
+		if( elt[i].innerText.toLowerCase().indexOf(val) !== -1 ){
+			elt[i].parentElement.style.display = 'table-row';
+		}else{
+			elt[i].parentElement.style.display = 'none';
+		}
+	}
+}
+</script>
+<style type="text/css">
+table,tbody,thead,td,tr,th {
+	border: 1px solid rgba(0,0,0,0.3);
+	padding: 0;
+	border-spacing : 0;
+	border-collapse : collapse;
+}
+thead {
+	background: rgba(0,0,0,0.9);
+	color: #fff;
+	text-align:left;
+}
+tbody tr:hover{
+	background: rgba(0,0,0,0.1)
+}
+.status {
+	text-align: center;
+}
+.status_Draft {
+	background: rgba(245, 206, 66, 0.5);
+}
+.status_Validated {
+	background: rgba(0, 255, 0, 0.5);
+}
+</style>
+</head><body>
+<input type="text" placeholder="Search" style="width:100%;" id="searchbar" onkeyup="searchbar_keyup(event)" /><br />
+<br />
+<table style="width:100%;">
+<thead>
+<tr>
+	<th></th>
+	<th>Vulnerability name</th>
+	<th>Status</th>
+</tr>
+</thead>
+<tbody id="rows" name="rows">
+%INSERTDATA%
+<!--
+<tr onclick="toogleCheckbox(this);">
+	<td><input type="checkbox" value="1" id="xxx" /></td>
+	<td class="vulnname">Vulnerability name</td>
+	<td>Status</td>
+</tr>
+<!-- -->
+</tbody>
+</table>
+</body></html>

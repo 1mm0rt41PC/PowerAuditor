@@ -119,11 +119,11 @@ Public Sub resizeUpTable(wDoc As Object, title As String, nbVuln As Integer)
         Debug.Print "[!][resizeUpTable] Not enough vulnerabilities !"
         Exit Sub
     End If
-    While myTab.Rows.Count > nbVuln + 1
-        myTab.Rows.Item(3).Delete
+    While myTab.rows.Count > nbVuln + 1
+        myTab.rows.Item(3).Delete
     Wend
-    While myTab.Rows.Count <= nbVuln
-        myTab.Rows.Add myTab.Rows.Item(2)
+    While myTab.rows.Count <= nbVuln
+        myTab.rows.Add myTab.rows.Item(2)
     Wend
 End Sub
 
@@ -141,9 +141,9 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Dim name As String: name = ws.Cells(iRow, Xls.getColLocation(ws, "name")).Value2
     Debug.Print "Inserting the vulnerability: " & name
     Dim iCol As Integer: iCol = 1
-    Dim id As Integer: id = iRow - 2
+    Dim Id As Integer: Id = iRow - 2
     Dim cellColor As Long
-    Dim isNewVulnInWord As Boolean: isNewVulnInWord = createVulnId(wDoc, ws, id)
+    Dim isNewVulnInWord As Boolean: isNewVulnInWord = createVulnId(wDoc, ws, Id)
     Dim naturalTableColor1: naturalTableColor1 = ws.Cells(2, 1).DisplayFormat.Interior.color
     Dim naturalTableColor2: naturalTableColor2 = ws.Cells(3, 1).DisplayFormat.Interior.color
     Dim cc As Object
@@ -151,7 +151,7 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     Dim textStartsWith As String
     While ws.Cells(2, iCol).Value2 <> ""
         cellColor = ws.Cells(iRow, iCol).DisplayFormat.Interior.color
-        Set cc = wDoc.SelectContentControlsByTitle("VLN_" & ws.Cells(2, iCol).Value2 & "_" & id)
+        Set cc = wDoc.SelectContentControlsByTitle("VLN_" & ws.Cells(2, iCol).Value2 & "_" & Id)
         For i = 1 To cc.Count
             With cc.Item(i).Range
                 ' Copy color
@@ -175,13 +175,13 @@ Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
     
     ' On insert les preuves qui proviennent du dossier VULNDB
     Dim toImportHTML As Variant: toImportHTML = RT.getExportFields_HTML()
-    Set cc = wDoc.SelectContentControlsByTitle("VLN_exploit_" & id)(1)
+    Set cc = wDoc.SelectContentControlsByTitle("VLN_exploit_" & Id)(1)
     Dim subCC As Object
     Dim sPath As String: sPath = IOFile.getVulnDBPath(name)
     If IOFile.isFile(sPath & "\desc.html") Then
         For i = 0 To UBound(toImportHTML)
             If IOFile.isFile(sPath & "\" & Replace(toImportHTML(i), "*", "") & ".html") Then
-                Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & Replace(toImportHTML(i), "*", "") & "_" & id)(1)
+                Set subCC = wDoc.SelectContentControlsByTitle("VLN_" & Replace(toImportHTML(i), "*", "") & "_" & Id)(1)
                 If Common.isEmptyString(Common.trim(subCC.Range.text, "x")) Then
                     Call subCC.Range.InsertFile(sPath & "\" & Replace(toImportHTML(i), "*", "") & ".html", , , False, False)
                 End If
@@ -238,13 +238,13 @@ End Sub
 '                                        in the {ws} who contain a vulnerability
 ' @return FALSE if the vulnerability already exists in the word. TRUE if a new part about this vulnerability is created
 '
-Private Function createVulnId(wDoc As Object, ws As Worksheet, id As Integer) As Boolean
+Private Function createVulnId(wDoc As Object, ws As Worksheet, Id As Integer) As Boolean
     Dim VLN_Template As Object
     Dim ccs As Object
     Dim cc_copy As Object
     Dim idName As String
     idName = ws.Cells(2, ColumnIndex:=1).Value2
-    idName = idName & "_" & id
+    idName = idName & "_" & Id
     
     If wDoc.SelectContentControlsByTitle("VLN_" & idName).Count <> 0 Then
         createVulnId = False
@@ -261,7 +261,7 @@ Private Function createVulnId(wDoc As Object, ws As Worksheet, id As Integer) As
     wDoc.Range(location - 1, location - 1).Paste
     
     Set cc_copy = wDoc.SelectContentControlsByTitle("VLN_Template")
-    If cc_copy.Item(1).id = VLN_Template.id Then
+    If cc_copy.Item(1).Id = VLN_Template.Id Then
         Set cc_copy = cc_copy.Item(2)
     Else
         Set cc_copy = cc_copy.Item(1)
@@ -271,7 +271,7 @@ Private Function createVulnId(wDoc As Object, ws As Worksheet, id As Integer) As
     ' Renomage
     Dim i As Integer
     For i = 1 To ccs.Count
-        ccs.Item(i).title = ccs.Item(i).title & "_" & id
+        ccs.Item(i).title = ccs.Item(i).title & "_" & Id
     Next
     cc_copy.Delete False
     createVulnId = True

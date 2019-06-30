@@ -34,6 +34,7 @@ Public G_ws As Worksheet
 Public G_SaveAsOnGoing As Boolean
 Public G_exportToProd As Boolean
 
+
 Private Sub Workbook_AfterSave(ByVal Success As Boolean)
     If G_SaveAsOnGoing Then Exit Sub
     Versionning.exportVisualBasicCode
@@ -142,14 +143,14 @@ Public Sub exportExcelToWordTemplate(control As Object)
     G_naturalTableColor1 = ws.Cells(2, 1).DisplayFormat.Interior.color
     G_naturalTableColor2 = ws.Cells(3, 1).DisplayFormat.Interior.color
     
-    Call RT.initWordExport(wDoc, ws)
+    Call RT.exportExcel2Word_before(wDoc, ws)
     While ws.Cells(iRow, 1).Value2 <> ""
-        Call RT.insertVuln(wDoc, ws, iRow)
+        Call RT.exportExcel2Word_insertVuln(wDoc, ws, iRow)
         iRow = iRow + 1
     Wend
     nbVuln = iRow - 3
     
-    Call RT.finalizeWordExport(wDoc, ws, nbVuln)
+    Call RT.exportExcel2Word_after(wDoc, ws, nbVuln)
     wDoc.Fields.Update
     MsgBox "Generation done :-)", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
@@ -288,12 +289,43 @@ Public Sub fillExcelWithProof(control As Object)
     MsgBox "Import done", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
 
+Public Sub importVulnFromDatabase(control As Object)
+    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
+
+    Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
+    Dim COL_NAME As Integer: COL_NAME = RT.getExportField_KeyColumn(ws)
+    Dim toImportText As Variant: toImportText = Array("desc", "category", "fixtype", "risk", "fix")
+    Dim i As Integer
+    Dim j As Integer
+    Dim sVuln As String: sVuln = Common.PowerImporter()
+    If sVuln = "" Then Exit Sub
+    Dim aVuln() As String: aVuln = Split(sVuln, vbCrLf)
+    
+    Dim iRow As Integer: iRow = 3
+
+    Dim sPath As String
+    For j = 0 To UBound(aVuln)
+        Call IOFile.myMkDir(ThisWorkbook.Path & "\vuln\" & aVuln(j))
+        ws.Cells(iRow, 1).EntireRow.Insert
+        ws.Cells(iRow + 1, 1).EntireRow.Copy ws.Cells(iRow, 1)
+        ws.Cells(iRow, COL_ID).Value2 = iRow - 2
+        ws.Cells(iRow, COL_NAME).Value2 = aVuln(j)
+        If IOFile.isFile(IOFile.getVulnDBPath(aVuln(j)) & "\desc.html") Then
+            sPath = IOFile.getVulnDBPath(aVuln(j))
+            For i = 0 To UBound(toImportText)
+                ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & toImportText(i) & ".html"), Chr(10) & Chr(13))
+            Next i
+        End If
+        iRow = iRow + 1
+    Next j
+    
+    MsgBox "Import done", vbSystemModal + vbInformation, "PowerAuditor"
+End Sub
+
 
 Public Sub exportVulnToGit(control As Object)
-    If MsgBox("Do you want to export your vulnerabilities to the GIT ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     Dim iRow As Integer: iRow = 3
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
-    Dim wDoc As Object: Set wDoc = Word.getInstance()
     
     Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = Xls.getColLocation(ws, "name")
@@ -303,50 +335,78 @@ Public Sub exportVulnToGit(control As Object)
     Dim toExportHTML As Variant: toExportHTML = RT.getExportFields_HTML
     Dim toExportKeyCol As Integer: toExportKeyCol = RT.getExportField_KeyColumn(ws)
     Dim i As Integer
-    If Not IOFile.git("pull") Then Exit Sub
+    Dim j As Integer
+
+    Dim sData As String
     While ws.Cells(iRow, 1).Value2 <> ""
         name = ws.Cells(iRow, toExportKeyCol).Value2
-        If MsgBox("Export >" & name & "< to the GIT ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbYes Then
-            Debug.Print "Export VULN to GIT: " & name
-            sPath = IOFile.getVulnDBPath(name, True)
-            For i = 0 To UBound(toExportText)
-                Call IOFile.fileSetContent(sPath & "\" & toExportText(i) & ".html", ws.Cells(iRow, Xls.getColLocation(ws, toExportText(i))).Value2)
-            Next i
-            For i = 0 To UBound(toExportHTML)
-                With wDoc.SelectContentControlsByTitle("VLN_" & Replace(toExportHTML(i), "*", "") & "_" & ws.Cells(iRow, COL_ID).Value2)
-                    If .Count = 1 Then
-                        If InStr(toExportHTML(i), "*") = 0 Or .Item(1).Tag = "*" Then
-                            ' Création d'une ligne vide afin de permettre l'export HTML
-                            .Item(1).Range.InsertAfter Chr(13)
-                            ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
-                            .Item(1).Range.ExportFragment sPath & "\" & Replace(toExportHTML(i), "*", "") & ".html", wdFormatHTML
-                            ' Suppression de la ligne vide
-                            wDoc.Range(.Item(1).Range.End - 1, .Item(1).Range.End).text = ""
-                        End If
-                    End If
-                End With
-            Next i
-
-            sPath = IOFile.getNotableFile(name)
-            If Not IOFile.isFile(sPath) Then
-                Dim mo: mo = Month(Now())
-                If mo < 10 Then mo = "0" & mo
-                Call IOFile.fileSetContent(sPath, "---" & vbLf & _
-                "title: " & name & vbLf & _
-                "created: '" & Year(Now()) & "-" & mo & "-" & Day(Now()) & "T" & Split(Now(), " ")(1) & "Z'" & vbLf & _
-                "modified: '" & Year(Now()) & "-" & mo & "-" & Day(Now()) & "T" & Split(Now(), " ")(1) & "Z'" & vbLf & _
-                "tags: [Pentest/Fiche de vuln/A trier/]" & vbLf & _
-                "---" & vbLf & _
-                "" & vbLf & _
-                "# 1. " & name & vbLf & _
-                "" & vbLf & _
-                "" & vbLf)
-            End If
-            If Not IOFile.git("add .") Then Exit Sub
-            If Not IOFile.git("commit -am " & Chr(34) & "Update the vulnerability " & Replace(name, Chr(34), "") & Chr(34)) Then Exit Sub
-        End If
+        sData = sData & iRow & Chr(9) + name & vbCrLf
         iRow = iRow + 1
     Wend
+    sData = Common.PowerExporter(sData)
+    If sData = "" Then Exit Sub
+    
+    Dim sRows() As String
+    sRows = Split(sData, vbCrLf)
+    
+    Dim wDoc As Object: Set wDoc = Word.getInstance()
+    If Not IOFile.git("pull") Then Exit Sub
+    Dim aRow() As String
+    Dim isDraft As Boolean
+    Dim isExploit As Boolean
+    For j = 0 To UBound(sRows)
+        aRow = Split(sRows(j), "/")
+        iRow = CInt(aRow(0))
+        isDraft = (aRow(1) = "d")
+        isExploit = (aRow(2) = "e")
+        name = ws.Cells(iRow, toExportKeyCol).Value2
+        
+        Debug.Print "Export VULN to GIT: " & name
+        sPath = IOFile.getVulnDBPath(name, True)
+        For i = 0 To UBound(toExportText)
+            Call IOFile.fileSetContent(sPath & "\" & toExportText(i) & ".html", ws.Cells(iRow, Xls.getColLocation(ws, toExportText(i))).Value2)
+        Next i
+        For i = 0 To UBound(toExportHTML)
+            Dim eHtml As String: eHtml = toExportHTML(i)
+            If isExploit Then
+                eHtml = Replace(eHtml, "*", "")
+            End If
+            With wDoc.SelectContentControlsByTitle("VLN_" & eHtml & "_" & ws.Cells(iRow, COL_ID).Value2)
+                If .Count = 1 Then
+                    ' Création d'une ligne vide afin de permettre l'export HTML
+                    .Item(1).Range.InsertAfter Chr(13)
+                    ' Enregistre au format HTML avec un dossier séparé, avec le strict nécéssaire (img & css) (wdFormatFilteredHTML=10)
+                    .Item(1).Range.ExportFragment sPath & "\" & eHtml & ".html", wdFormatHTML
+                    ' Suppression de la ligne vide
+                    wDoc.Range(.Item(1).Range.End - 1, .Item(1).Range.End).text = ""
+                End If
+            End With
+        Next i
+        
+        If isDraft Then
+            Call IOFile.removeFile(sPath & "\.validated")
+        Else
+            Call IOFile.fileSetContent(sPath & "\.validated", Common.getFromO365("EmailAddress"))
+        End If
+
+        sPath = IOFile.getNotableFile(name)
+        If Not IOFile.isFile(sPath) Then
+            Dim mo: mo = Month(Now())
+            If mo < 10 Then mo = "0" & mo
+            Call IOFile.fileSetContent(sPath, "---" & vbLf & _
+            "title: " & name & vbLf & _
+            "created: '" & Year(Now()) & "-" & mo & "-" & Day(Now()) & "T" & Split(Now(), " ")(1) & "Z'" & vbLf & _
+            "modified: '" & Year(Now()) & "-" & mo & "-" & Day(Now()) & "T" & Split(Now(), " ")(1) & "Z'" & vbLf & _
+            "tags: [Pentest/Fiche de vuln/A trier/]" & vbLf & _
+            "---" & vbLf & _
+            "" & vbLf & _
+            "# 1. " & name & vbLf & _
+            "" & vbLf & _
+            "" & vbLf)
+        End If
+        If Not IOFile.git("add .") Then Exit Sub
+        If Not IOFile.git("commit -am " & Chr(34) & "Update the vulnerability " & Replace(name, Chr(34), "") & Chr(34)) Then Exit Sub
+    Next j
     If Not IOFile.git("push -u origin master") Then Exit Sub
     MsgBox "Export done", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub

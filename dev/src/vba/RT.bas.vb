@@ -63,18 +63,18 @@ Public Function getExportField_KeyColumn(ws As Worksheet) As Integer
 End Function
 
 
-Public Sub initWordExport(wDoc As Object, ws As Worksheet)
-    Call Application.Run(getRT() & ".initWordExport", wDoc, ws)
+Public Sub exportExcel2Word_before(wDoc As Object, ws As Worksheet)
+    Call Application.Run(getRT() & ".exportExcel2Word_before", wDoc, ws)
 End Sub
 
 
-Public Sub insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
-    Call Application.Run(getRT() & ".insertVuln", wDoc, ws, iRow)
+Public Sub exportExcel2Word_insertVuln(wDoc As Object, ws As Worksheet, iRow As Integer)
+    Call Application.Run(getRT() & ".exportExcel2Word_insertVuln", wDoc, ws, iRow)
 End Sub
 
 
-Public Sub finalizeWordExport(wDoc As Object, ws As Worksheet, nbVuln As Integer)
-    Call Application.Run(getRT() & ".finalizeWordExport", wDoc, ws, nbVuln)
+Public Sub exportExcel2Word_after(wDoc As Object, ws As Worksheet, nbVuln As Integer)
+    Call Application.Run(getRT() & ".exportExcel2Word_after", wDoc, ws, nbVuln)
 End Sub
 
 

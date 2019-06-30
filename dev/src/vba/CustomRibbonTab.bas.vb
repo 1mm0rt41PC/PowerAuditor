@@ -28,7 +28,7 @@ Private Sub onLoad(rb As Object)
 End Sub
 
 Private Sub RibbonOnChange(control As Object, val)
-    Worksheets("PowerAuditor").Range(control.id).Value2 = val
+    Worksheets("PowerAuditor").Range(control.Id).Value2 = val
 End Sub
 
 Private Sub isDevMode(control As Object, ByRef enabled)
@@ -37,7 +37,7 @@ End Sub
 
 Private Sub getVersion(control As IRibbonControl, ByRef text)
     On Error Resume Next
-    text = Range(control.id).Value2
+    text = Range(control.Id).Value2
     Err.Clear
 End Sub
 

@@ -30,6 +30,7 @@ https://www.rondebruin.nl/win/s2/win003.htm
 			<tab id="PowerAuditor" label="PowerAuditor" insertBeforeQ="TabFormat">
 				<group id="Reports" label="Reports" autoScale="true">
 					<button id="FillExcelWithProof" label="Fill excel with proof" imageMso="TableAutoFormat" onAction="ThisWorkbook.fillExcelWithProof"/>
+					<button id="ImportVulnFromDatabase" label="Import vuln from database" imageMso="TableAutoFormat" onAction="ThisWorkbook.importVulnFromDatabase"/>
 					<button id="ExportExcelToWordTemplate" label="Export Excel to Word" imageMso="HappyFace" onAction="ThisWorkbook.ExportExcelToWordTemplate"/>
 					<button id="GenSynthesis" label="Generate synthesis" imageMso="ChartInsert" onAction="ThisWorkbook.genSynthesis"/>
 					<button id="ExportFinalStaticsDocuments" label="Generate final RA/RD/XL" imageMso="PageOrientationPortraitLandscape" size="large" onAction="ThisWorkbook.exportFinalStaticsDocuments"/>

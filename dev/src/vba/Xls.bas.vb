@@ -228,11 +228,11 @@ Public Sub exportPowerauditorToXlsx(Optional aSheetsNewName As Variant = Nothing
     Application.DisplayAlerts = False
     ws_ex.Worksheets(1).Delete
     With ws_ex.Worksheets(1)
-        .Rows(2).EntireRow.Delete
+        .rows(2).EntireRow.Delete
         While .Cells(iRow, 1).Value2 <> ""
             iRow = iRow + 1
         Wend
-        .Rows(iRow).EntireRow.Delete
+        .rows(iRow).EntireRow.Delete
     End With
     ws_ex.SaveAs sFilename, FileFormat:=xlOpenXMLWorkbook
     ws_ex.Close
@@ -251,3 +251,4 @@ Public Function getVersionDate() As String
     End If
     getVersionDate = VERSION_DATE
 End Function
+

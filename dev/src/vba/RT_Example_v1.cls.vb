@@ -90,17 +90,17 @@ Public Function getExportField_KeyColumn(ws As Worksheet) As Integer
 End Function
 
 
-Public Sub initWordExport(wDoc As Object, ws As Worksheet)
+Public Sub exportExcel2Word_before(wDoc As Object, ws As Worksheet)
     ' Do what you want here BEFORE export Excel to Word
 End Sub
 
 
-Public Sub finalizeWordExport(wDoc As Object, ws As Worksheet, nbVuln As Integer)
+Public Sub exportExcel2Word_after(wDoc As Object, ws As Worksheet, nbVuln As Integer)
 	' Do what you want here AFTER export Excel to Word
 End Sub
 
 
-Public Sub insertVuln(wDoc As Object, ws As Worksheet, line As Integer)
+Public Sub exportExcel2Word_insertVuln(wDoc As Object, ws As Worksheet, line As Integer)
 	' This function allow you to insert vulnerabilities
 	' If you want, you can use the default function:
     Call Word.insertVuln(wDoc, ws, line)

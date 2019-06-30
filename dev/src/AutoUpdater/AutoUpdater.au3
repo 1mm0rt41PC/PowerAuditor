@@ -19,8 +19,9 @@
 #include <TrayConstants.au3> ; Required for the $TRAY_ICONSTATE_SHOW constant.
 #AutoIt3Wrapper_Res_HiDpi=1
 #AutoIt3Wrapper_Run_Tidy=y
+#AutoIt3Wrapper_Run_Au3Stripper=y
+#Au3Stripper_parameters=/STRIPONLY
 #Tidy_Parameters=/nsdp
-#Au3Stripper_On
 #pragma compile(Out, ../../../bin/AutoUpdater.exe)
 #pragma compile(UPX, True)
 #pragma compile(Icon, ../PowerAuditor.ico)

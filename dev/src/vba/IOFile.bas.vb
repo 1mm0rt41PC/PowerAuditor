@@ -73,7 +73,7 @@ Public Function renameDocument(inst, ext As String, pType As String, Optional By
     Dim corp As String: corp = RT.getCorp()
     If InStr(ThisWorkbook.Path, "output") Then
         If pType = "TEMPLATE" Then
-            newFileName = ThisWorkbook.Path & Application.PathSeparator & ".." & Application.PathSeparator & fileName
+            newFileName = CreateObject("Scripting.FileSystemObject").GetParentFolderName(ThisWorkbook.Path) & Application.PathSeparator & fileName
         Else
             newFileName = ThisWorkbook.Path & Application.PathSeparator & fileName
         End If
@@ -167,13 +167,19 @@ Public Sub fileSetContent(sFilename As String, sData As String)
     Close #iFileNum
 End Sub
 
-Public Function fileGetContent(sFilename As String) As String
-    Dim sData As String
-    Dim oFSO As Object: Set oFSO = CreateObject("Scripting.FileSystemObject")
-    Dim oTF As Object: Set oTF = oFSO.OpenTextFile(sFilename, 1)
-    sData = oTF.readall()
-    oTF.Close
-    fileGetContent = sData
+Public Function fileGetContent(sFilename As String, Optional isUTF8 As Boolean) As String
+    If isUTF8 Then
+        Dim oFSO As Object: Set oFSO = CreateObject("ADODB.Stream")
+        oFSO.charset = "utf-8"
+        oFSO.Open
+        oFSO.LoadFromFile (sFilename)
+        fileGetContent = oFSO.ReadText()
+        oFSO.Close
+    Else
+        Dim oTF As Object: Set oTF = CreateObject("Scripting.FileSystemObject").OpenTextFile(sFilename, 1)
+        fileGetContent = oTF.readall()
+        oTF.Close
+    End If
 End Function
 
 Public Function getFileExt(mFileName As String) As String
@@ -185,7 +191,8 @@ End Function
 
 Public Function myMkDir(sPath As String)
     If Not IOFile.isFolder(sPath) Then
-        Call MkDir(sPath)
+        'Call MkDir(sPath)
+        Call runCmd("cmd /c mkdir """ & sPath & """")
     End If
 End Function
 
@@ -246,7 +253,7 @@ End Function
 Public Function getPowerAuditorPath() As String
     If IOFile.m_getPowerAuditorPath = "" Then
         If isDevMode() Then
-            IOFile.m_getPowerAuditorPath = ThisWorkbook.Path & "\..\"
+            IOFile.m_getPowerAuditorPath = CreateObject("Scripting.FileSystemObject").GetParentFolderName(ThisWorkbook.Path)
         Else
             IOFile.m_getPowerAuditorPath = Environ("USERPROFILE") & "\PowerAuditor\"
         End If
@@ -258,6 +265,7 @@ End Function
 Public Function getVulnDBPath(sVulnerabilityName As String, Optional bCreateIfNotExist As Boolean = False) As String
     Dim sEncVulnName As String: sEncVulnName = IOFile.filenameEncode(sVulnerabilityName)
     Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\VulnDB\" & Common.getLang() & "\" & sEncVulnName
+    Call IOFile.myMkDir(IOFile.getPowerAuditorPath() & "\VulnDB\" & Common.getLang())
     Dim oFS As Object
     Dim isFolder As Boolean: isFolder = IOFile.isFolder(sPath)
     If Not isFolder And Not bCreateIfNotExist Then
@@ -278,17 +286,17 @@ Public Function getVulnDBPath(sVulnerabilityName As String, Optional bCreateIfNo
     sDesktopIni = sDesktopIni & "Personalized=5" & vbCrLf
     sDesktopIni = sDesktopIni & "PersonalizedName=" & sVulnerabilityName & vbCrLf
     
-    If Not isFolder Then MkDir (sPath)
+    If Not isFolder Then IOFile.myMkDir (sPath)
     Dim sDesktopIniPath As String: sDesktopIniPath = sPath & "\desktop.ini"
     If IOFile.filenameEncode(sVulnerabilityName) = sVulnerabilityName Then
         If isFile(sDesktopIniPath) Then
-            oFS.getfile(sDesktopIniPath).Attributes = 32
+            oFS.GetFile(sDesktopIniPath).Attributes = 32
             Call removeFile(sDesktopIniPath)
         End If
     Else
-        oFS.getfile(sDesktopIniPath).Attributes = 32
+        oFS.GetFile(sDesktopIniPath).Attributes = 32
         Call IOFile.fileSetContent(sPath & "\desktop.ini", sDesktopIni)
-        oFS.getfile(sPath & "\desktop.ini").Attributes = 39
+        oFS.GetFile(sPath & "\desktop.ini").Attributes = 39
         oFS.getfolder(sPath).Attributes = 17
     End If
     getVulnDBPath = sPath
@@ -296,7 +304,9 @@ End Function
 
 
 Public Function getNotableFile(name As String) As String
-    getNotableFile = IOFile.getPowerAuditorPath() & "\VulnDB\.notable\notes\" & IOFile.filenameEncode(name) & ".md"
+    getNotableFile = IOFile.getPowerAuditorPath() & "\VulnDB\.notable\notes\"
+    Call myMkDir(getNotableFile)
+    getNotableFile = getNotableFile & IOFile.filenameEncode(name) & ".md"
 End Function
 
 

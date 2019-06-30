@@ -71,12 +71,24 @@ Function arrayAppendUniq(arr As Variant, val As String) As Variant
 End Function
 
 
-Public Function dictContains(col As Collection, key As Variant) As Boolean
+Public Function dictContains(cCol As Collection, vKey As Variant) As Boolean
     On Error Resume Next
-    col (key) ' Just try it. If it fails, Err.Number will be nonzero.
+    cCol (vKey) ' Just try it. If it fails, Err.Number will be nonzero.
     dictContains = (Err.Number = 0)
     Err.Clear
 End Function
+
+
+Public Sub dictAppend(cCol As Collection, vKey As Variant, vData As Variant)
+    On Error GoTo dictAdd_err
+    Call cCol.Add(vData, vKey)
+    Exit Sub
+dictAdd_err:
+    Err.Clear
+    vData = cCol(vKey) & vData
+    Call cCol.Remove(vKey)
+    Call cCol.Add(vData, vKey)
+End Sub
 
 
 Public Function trim(myStr As String, Optional rmChar As String) As String
@@ -210,6 +222,34 @@ Public Function CVSSReader(cvss As String) As String
     Exit Function
 CVSSReader_err:
     CVSSReader = ""
+    Call IOFile.removeFile(sTmpFile)
+End Function
+
+
+Public Function PowerImporter() As String
+    Dim sTmpFile As String: sTmpFile = Environ("TMP") & "\" & randomString(10)
+    Call IOFile.runCmd("cmd /c " & IOFile.getPowerAuditorPath() & "\bin\PowerImporter.exe " & Common.getLang() & " > " & sTmpFile, 0, True)
+    On Error GoTo PowerImporter_err
+    PowerImporter = Common.trim(fileGetContent(sTmpFile, True))
+    Debug.Print PowerImporter
+    Call IOFile.removeFile(sTmpFile)
+    Exit Function
+PowerImporter_err:
+    PowerImporter = ""
+    Call IOFile.removeFile(sTmpFile)
+End Function
+
+
+Public Function PowerExporter(sData As String) As String
+    Dim sTmpFile As String: sTmpFile = Environ("TMP") & "\" & randomString(10)
+    Call IOFile.fileSetContent(sTmpFile, sData)
+    Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\bin\PowerExporter.exe " & Chr(34) & sTmpFile & Chr(34), 0, True)
+    On Error GoTo PowerImporter_err
+    PowerExporter = Common.trim(IOFile.fileGetContent(sTmpFile))
+    Call IOFile.removeFile(sTmpFile)
+    Exit Function
+PowerImporter_err:
+    PowerExporter = ""
     Call IOFile.removeFile(sTmpFile)
 End Function
 
