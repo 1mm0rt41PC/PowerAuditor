@@ -74,7 +74,7 @@ FileWrite($sPIDFile, @AutoItPID)
 Local $iLastTimeExeUpdated = FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING)
 Local $iLoop = 0
 Global $idForceUpdate = TrayCreateItem('Force update')
-Global $idLastUpdateDate = TrayItemSetText($idLastUpdateDate, 'Last update was at: -')
+Global $idLastUpdateDate = TrayCreateItem('Last update was at: -')
 TrayItemSetState($idLastUpdateDate, $TRAY_DISABLE)
 Global $idLastUpdateStatus = TrayCreateItem('Last update status: -')
 TrayItemSetState($idLastUpdateStatus, $TRAY_DISABLE)
@@ -101,7 +101,8 @@ While 1
 		If Not FileExists($sPIDFile) Or $iLastTimeExeUpdated <> FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING) Then
 			FileDelete($sPIDFile)
 			Local $sTmpBat = _TempFile(@TempDir, '~', '.bat')
-			FileWrite($sTmpBat, 'ping -n 5 127.0.0.1' & @CRLF & 'del /F /Q "' & @ScriptFullPath & '" "' & $sTmpBat & '"' & @CRLF & '"' & @WorkingDir & '\bin\AutoUpdater.exe"')
+			Run(@WorkingDir & '\bin\AutoUpdater.exe', @WorkingDir)
+			FileWrite($sTmpBat, 'ping -n 5 127.0.0.1' & @CRLF & 'del /F /Q "' & @ScriptFullPath & '" "' & $sTmpBat & '"')
 			Run($sTmpBat, @WorkingDir, @SW_HIDE)
 			Exit
 		EndIf
