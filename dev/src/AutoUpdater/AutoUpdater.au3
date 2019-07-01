@@ -49,6 +49,7 @@ Opt('GUICloseOnESC', False)
 
 Global Const $sPIDFile = @TempDir & '\AutoUpdater-PowerAuditor.pid'
 Global $iCounterLastError = 0
+Global $iLastUpdate = 0
 
 DllCall('User32.dll', 'bool', 'SetProcessDPIAware') ; Support du DPI
 TraySetState($TRAY_ICONSTATE_SHOW) ; Show the tray menu.
@@ -73,6 +74,10 @@ FileWrite($sPIDFile, @AutoItPID)
 Local $iLastTimeExeUpdated = FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING)
 Local $iLoop = 0
 Global $idForceUpdate = TrayCreateItem('Force update')
+Global $idLastUpdateDate = TrayItemSetText($idLastUpdateDate, 'Last update was at: -')
+TrayItemSetState($idLastUpdateDate, $TRAY_DISABLE)
+Global $idLastUpdateStatus = TrayCreateItem('Last update status: -')
+TrayItemSetState($idLastUpdateStatus, $TRAY_DISABLE)
 Local $idExit = TrayCreateItem('Exit')
 Global $tray
 While 1
@@ -82,9 +87,16 @@ While 1
 	If $iLoop > 10 * 60 * 60 Or $tray == $idForceUpdate Then
 		If $tray == $idForceUpdate Then TrayTip('PowerAuditor', 'Updating all repositories', 5, $TIP_ICONASTERISK)
 		$iLoop = -1
+		$iLastUpdate = 0
 		git('')
 		git('vulndb')
 		git('template')
+		TrayItemSetText($idLastUpdateDate, 'Last update was at: ' & @HOUR & 'h' & @MIN)
+		If $iLastUpdate = 0 Then
+			TrayItemSetText($idLastUpdateStatus, 'Last update status: OK')
+		Else
+			TrayItemSetText($idLastUpdateStatus, 'Last update status: FAIL')
+		EndIf
 		UpdateVulnDBFolder()
 		If Not FileExists($sPIDFile) Or $iLastTimeExeUpdated <> FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING) Then
 			FileDelete($sPIDFile)
@@ -111,8 +123,9 @@ Func git($sRepo)
 	$retCode = @extended
 	Local $sOutput = StdoutRead($iPID)
 	$sOutput &= StderrRead($iPID)
+	$iLastUpdate = $iLastUpdate + $retCode
 	If $retCode <> 0 Then
-		If StringInStr($sOutput, "Could not resolve host") Then
+		If StringInStr($sOutput, 'Could not resolve host') Then
 			Return Null
 		EndIf
 		If $sRepo == '' Then
@@ -127,7 +140,7 @@ Func UpdateVulnDBFolder()
 	Local $sPath = @WorkingDir & '\vulndb'
 	Local $hSearch = FileFindFirstFile($sPath & '\*')
 	If $hSearch = -1 Then Return Null
-	Local $sFileName = ""
+	Local $sFileName = ''
 
 	While 1
 		$sFileName = FileFindNextFile($hSearch)
