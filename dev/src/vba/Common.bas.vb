@@ -124,53 +124,18 @@ Public Function isEmptyString(ByVal myStr As String) As Boolean
 End Function
 
 
-Public Function getFromO365(sType As String, Optional bFromO365) As String
-    Dim iFileNum As Integer
-    Dim sDataLine As String
-    Dim sFilepath As String
-    
-    If IsMissing(bFromO365) Then
-        sDataLine = getFromO365(sType, False)
-        If sDataLine = "" Then sDataLine = getFromO365(sType, True)
-        getFromO365 = sDataLine
-        Exit Function
-    End If
-    
-    If bFromO365 Then
-        Call IOFile.removeFile(Environ("tmp") & "\O365.tmp")
-        Call IOFile.runCmd("reg export HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity\Identities %tmp%\O365.tmp /y", 0, True)
-        sFilepath = Environ("tmp") & "\O365.tmp"
-    Else
-        sFilepath = Environ("USERPROFILE") & "\PowerAuditor\config.ini"
-        If Not IOFile.isFile(sFilepath) Then
-            getFromO365 = ""
+Public Function getFromO365(sType As String) As String
+    On Error GoTo getFromO365_err
+    Dim sData() As String: sData = Split(IOFile.fileGetContent(Environ("USERPROFILE") & "\PowerAuditor\config.ini", True), vbCrLf)
+    Dim i As Integer
+    For i = 0 To UBound(sData)
+        If InStr(1, sData(i), sType, vbTextCompare) > 0 Then
+            getFromO365 = Replace(sData(i), sType & "=", "")
             Exit Function
         End If
-    End If
-    If Not IOFile.isFile(sFilepath) Then
-        getFromO365 = ""
-        Exit Function
-    End If
-    iFileNum = FreeFile()
-    Open sFilepath For Input As #iFileNum
-
-    While Not EOF(iFileNum)
-        Line Input #iFileNum, sDataLine ' read in data 1 line at a time
-        If InStr(sDataLine, sType) > 0 Then
-            '"EmailAddress"="xxxx@yyyyy.zzz"
-            sDataLine = Replace(sDataLine, Chr(34), "")
-            If bFromO365 Then Call IOFile.fileAppend(Environ("USERPROFILE") & "\PowerAuditor\config.ini", sDataLine)
-            sDataLine = Replace(sDataLine, sType & "=", "")
-            If sDataLine <> "" And sDataLine <> " " Then
-                getFromO365 = sDataLine
-                Close #iFileNum
-                If bFromO365 Then Call IOFile.removeFile(Environ("tmp") & "\O365.tmp")
-                Exit Function
-            End If
-        End If
-    Wend
-    Close #iFileNum
-    If bFromO365 Then Call IOFile.removeFile(Environ("tmp") & "\O365.tmp")
+    Next i
+getFromO365_err:
+    Debug.Print "[!] Unable to get the >" & sType & "<"
     getFromO365 = ""
 End Function
 
