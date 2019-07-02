@@ -62,7 +62,7 @@ Public Function getInstance()
             Dim fso As Object: Set fso = VBA.CreateObject("Scripting.FileSystemObject")
             Call fso.CopyFile( _
                 sPath & "\" & getInfo("REPORT_TYPE") & ".docx", _
-                Application.ActiveWorkbook.Path & "\" & RT.getReportFilename("TEMPLATE") & ".docx", _
+                Application.ActiveWorkbook.Path & "\" & RT.getReportFilename("TEMPLATE") & "docx", _
                 True _
             )
         End If
