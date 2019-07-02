@@ -72,7 +72,7 @@ FileDelete($sPIDFile)
 FileWrite($sPIDFile, @AutoItPID)
 
 Local $iLastTimeExeUpdated = FileGetTime(@WorkingDir & '\bin\AutoUpdater.exe', $FT_MODIFIED, $FT_STRING)
-Local $iLoop = 0
+Local $iLastCheck = 0
 Global $idForceUpdate = TrayCreateItem('Force update')
 Global $idLastUpdateDate = TrayCreateItem('Last update was at: -')
 TrayItemSetState($idLastUpdateDate, $TRAY_DISABLE)
@@ -84,9 +84,8 @@ While 1
 	$tray = TrayGetMsg()
 	If GUIGetMsg() == $GUI_EVENT_CLOSE Or $tray == $idExit Then ExitLoop
 	Sleep(100)
-	If $iLoop > 10 * 60 * 60 Or $tray == $idForceUpdate Then
+	If $iLastCheck <> @HOUR Or $tray == $idForceUpdate Then
 		If $tray == $idForceUpdate Then TrayTip('PowerAuditor', 'Updating all repositories', 5, $TIP_ICONASTERISK)
-		$iLoop = -1
 		$iLastUpdate = 0
 		git('')
 		git('vulndb')
@@ -106,8 +105,8 @@ While 1
 			Run($sTmpBat, @WorkingDir, @SW_HIDE)
 			Exit
 		EndIf
+		$iLastCheck = @HOUR
 	EndIf
-	$iLoop += 1
 WEnd
 
 
