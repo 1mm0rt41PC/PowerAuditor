@@ -60,7 +60,8 @@ If FileExists($sPIDFile) And ProcessExists(FileRead($sPIDFile)) Then Exit
 
 ; If the binary is not in the temp folder, we 'fork' this process to allow update
 If Not StringInStr(FileGetLongName(@ScriptDir), FileGetLongName(@TempDir)) Then
-	Local $sExeFile = _TempFile(@TempDir, '~', '.exe')
+	DirCreate(@TempDir & '\PowerAuditor\')
+	Local $sExeFile = @TempDir & '\PowerAuditor\PowerAuditor-AutoUpdater-' & @YDAY & @HOUR & @MIN & @SEC & @MSEC & '.exe'
 	FileCopy(@ScriptFullPath, $sExeFile)
 	FileChangeDir(@ScriptDir & '\..\')
 	Run($sExeFile, @WorkingDir)

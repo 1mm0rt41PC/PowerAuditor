@@ -38,7 +38,7 @@ Public Sub cleanUpInvalidExcelRef()
     Dim rangeName As name
     For Each rangeName In ThisWorkbook.Names
         If InStr(1, rangeName.RefersTo, "#REF!") > 0 Then
-            ThisWorkbook.Names(rangeName.index).Delete
+            ThisWorkbook.Names(rangeName.Index).Delete
         End If
     Next
 End Sub
