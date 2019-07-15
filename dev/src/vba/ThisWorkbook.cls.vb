@@ -185,20 +185,22 @@ Public Sub ToProd(control As Object)
     Else
         Range("PowerAuditorVersion").Value2 = Year(Now) & "-" & Month(Now) & "-" & Day(Now)
     End If
-    Range("TemplateVersion").Value2 = Range("PowerAuditorVersion").Value2
-        
-    ' On upgrade le template vers la bonne destination
-    Dim wb_exp As Workbook: Set wb_exp = Workbooks.Add
-    Dim ws As Worksheet
-    For Each ws In ThisWorkbook.Worksheets
-        If ws.name <> "PowerAuditor" Then
-            ThisWorkbook.Sheets(ws.name).Copy After:=wb_exp.Sheets(1)
-        End If
-    Next ws
-    wb_exp.Sheets(1).Delete
-    sFilepath = Replace(IOFile.getPowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & ".xlsm", "\\", "\")
-    Call wb_exp.SaveAs(sFilepath, FileFormat:=xlOpenXMLWorkbookMacroEnabled)
-    wb_exp.Close
+    
+    If ThisWorkbook.Worksheets.Count > 1 Then
+        Range("TemplateVersion").Value2 = Range("PowerAuditorVersion").Value2
+        ' On upgrade le template vers la bonne destination
+        Dim wb_exp As Workbook: Set wb_exp = Workbooks.Add
+        Dim ws As Worksheet
+        For Each ws In ThisWorkbook.Worksheets
+            If ws.name <> "PowerAuditor" Then
+                ThisWorkbook.Sheets(ws.name).Copy After:=wb_exp.Sheets(1)
+            End If
+        Next ws
+        wb_exp.Sheets(1).Delete
+        sFilepath = Replace(IOFile.getPowerAuditorPath & "\template\" & Common.getInfo("REPORT_TYPE") & ".xlsm", "\\", "\")
+        Call wb_exp.SaveAs(sFilepath, FileFormat:=xlOpenXMLWorkbookMacroEnabled)
+        wb_exp.Close
+    End If
     
     ' On export POWERAUDITOR vers le bon dossier de prod
     ThisWorkbook.Save ' On save la version de dev là où elle est
@@ -221,7 +223,10 @@ Public Sub ToProd(control As Object)
     ' On cleanup la liste des templates
     G_exportToProd = True
     Xls.cleanupTemplateList
-    Range("REPORT_TYPE").Value2 = ""
+    ThisWorkbook.Worksheets("PowerAuditor").Range("REPORT_TYPE").Value2 = ""
+    ThisWorkbook.Worksheets("PowerAuditor").Range("CLIENT").Value2 = "My Client Name"
+    ThisWorkbook.Worksheets("PowerAuditor").Range("TARGET").Value2 = "My App Name"
+    ThisWorkbook.Worksheets("PowerAuditor").Range("SCOPE").Value2 = "http://target/ (127.0.0.1)"
     
     Call Xls.cleanUpInvalidExcelRef
     G_SaveAsOnGoing = True

@@ -70,9 +70,13 @@ End Function
 
 
 
-Public Sub loadExcelSheet()
+Public Function loadExcelSheet() As Boolean
     Dim RT As String: RT = getInfo("REPORT_TYPE")
-    If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
+    If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then
+        loadExcelSheet = False
+        Exit Function
+    End If
+    loadExcelSheet = True
     Application.DisplayAlerts = False
     Dim ws_main As Worksheet: Set ws_main = ThisWorkbook.Worksheets("PowerAuditor")
        
@@ -90,7 +94,7 @@ Public Sub loadExcelSheet()
         sPath = sPath & ".xlsm"
     Else
         Call MsgBox("Template not found !", vbSystemModal + vbCritical, "PowerAuditor")
-        Exit Sub
+        Exit Function
     End If
     
     Dim wb As Workbook: Set wb = Workbooks.Open(fileName:=sPath, ReadOnly:=True, Notify:=False, AddToMru:=False, CorruptLoad:=xlNormalLoad)
@@ -126,7 +130,7 @@ reTry_loadExcelSheet:
     Call Versionning.loadModule(Split(getInfo("REPORT_TYPE"), "-")(0))
     Call ws_main.Parent.Save
     Versionning.G_bDisableExportVBCode = False
-End Sub
+End Function
 
 
 '===============================================================================
