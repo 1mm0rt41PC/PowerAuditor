@@ -311,43 +311,7 @@ Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFull
         wrdPic.Range.Paragraphs.Alignment = wdAlignParagraphCenter
         wrdPic.Range.InsertCaption Label:="Figure", title:=" - " & Replace(sLegend, ".png", ""), Position:=wdCaptionPositionBelow
     Else
-        Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7) & ".html"
-        Dim pygmentize As String: pygmentize = "pygmentize"
-        If IOFile.isFile(IOFile.getPowerAuditorPath() & "\bin\pygmentize.exe") Then
-            pygmentize = Chr(34) & IOFile.getPowerAuditorPath() & "\bin\pygmentize.exe" & Chr(34)
-        End If
-        Debug.Print "Using pygmentize from: " & pygmentize
-        
-        Call IOFile.runCmd(pygmentize & " -f html -l " & IOFile.getFileExt(sFullpath) & " -O full,noclasses,style=monokai -o " & Chr(34) & tmpFile & Chr(34) & " " & Chr(34) & sFullpath & Chr(34), 0, True)
-        If Not IOFile.isFile(tmpFile) Then ' Si pygmentize n'est pas trouvé ou en cas d'erreur => utilisation du fichier original
-            tmpFile = sFullpath
-            Debug.Print "pygmentize Failed !"
-        End If
-    
-        ' Insertion du fichier
-        Call cc.Range.InsertFile(fileName:=tmpFile, Link:=False, Attachment:=False)
-        cc.Range.NoProofing = True
-        If tmpFile = sFullpath Then
-            With cc.Range
-                .Style = wdStyleHtmlPre
-                .Paragraphs.Style = wdStyleHtmlPre
-                .Paragraphs.Shading.Texture = wdTextureNone
-                .Paragraphs.Shading.ForegroundPatternColor = wdColorAutomatic
-                .Paragraphs.Shading.BackgroundPatternColor = wdColorBlack
-            End With
-        End If
-    
-        ' Ajout de la legende
-        Call Word.trimContentControl(cc)
-        'If Not isEmptyString(wDoc.Range(cc.Range.End - 1, cc.Range.End).Text) Then
-        '    cc.Range.InsertParagraphAfter
-        'End If
-        With wDoc.Range(cc.Range.End - 1, cc.Range.End)
-            .InsertCaption Label:="Figure", title:=" - " & Replace(sLegend, "." & IOFile.getFileExt(sFullpath), ""), Position:=wdCaptionPositionBelow
-        End With
-        With wDoc.Range(cc.Range.End - 1, cc.Range.End)
-            .Paragraphs.Alignment = wdAlignParagraphCenter
-        End With
+        Call Word.pygmentizeMe(wDoc, cc, sFullpath, IOFile.getFileExt(sFullpath), sLegend)
     End If
     Call Word.trimContentControl(cc)
 End Sub
@@ -566,3 +530,44 @@ Public Sub UpdateALLFields(wDoc As Object)
     Next oToc
 End Sub
 
+
+
+Public Sub pygmentizeMe(wDoc As Object, cc As Object, sFullpath As String, sType As String, ByVal sLegend As String)
+    Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7) & ".html"
+    Dim pygmentize As String: pygmentize = "pygmentize"
+    If IOFile.isFile(IOFile.getPowerAuditorPath() & "\bin\pygmentize.exe") Then
+        pygmentize = Chr(34) & IOFile.getPowerAuditorPath() & "\bin\pygmentize.exe" & Chr(34)
+    End If
+    Debug.Print "Using pygmentize from: " & pygmentize
+    
+    Call IOFile.runCmd(pygmentize & " -f html -l " & sType & " -O full,noclasses,style=monokai -o " & Chr(34) & tmpFile & Chr(34) & " " & Chr(34) & sFullpath & Chr(34), 0, True)
+    If Not IOFile.isFile(tmpFile) Then ' Si pygmentize n'est pas trouvé ou en cas d'erreur => utilisation du fichier original
+        tmpFile = sFullpath
+        Debug.Print "pygmentize Failed !"
+    End If
+
+    ' Insertion du fichier
+    Call cc.Range.InsertFile(fileName:=tmpFile, Link:=False, Attachment:=False)
+    cc.Range.NoProofing = True
+    If tmpFile = sFullpath Then
+        With cc.Range
+            .Style = wdStyleHtmlPre
+            .Paragraphs.Style = wdStyleHtmlPre
+            .Paragraphs.Shading.Texture = wdTextureNone
+            .Paragraphs.Shading.ForegroundPatternColor = wdColorAutomatic
+            .Paragraphs.Shading.BackgroundPatternColor = wdColorBlack
+        End With
+    End If
+
+    ' Ajout de la legende
+    Call Word.trimContentControl(cc)
+    'If Not isEmptyString(wDoc.Range(cc.Range.End - 1, cc.Range.End).Text) Then
+    '    cc.Range.InsertParagraphAfter
+    'End If
+    With wDoc.Range(cc.Range.End - 1, cc.Range.End)
+        .InsertCaption Label:="Figure", title:=" - " & Replace(sLegend, "." & IOFile.getFileExt(sFullpath), ""), Position:=wdCaptionPositionBelow
+    End With
+    With wDoc.Range(cc.Range.End - 1, cc.Range.End)
+        .Paragraphs.Alignment = wdAlignParagraphCenter
+    End With
+End Sub

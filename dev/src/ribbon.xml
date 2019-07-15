@@ -46,6 +46,9 @@ https://www.rondebruin.nl/win/s2/win003.htm
 					<editBox id="TemplateVersion" imageMso="OpenAttachedCalendar" label="Template version" getText="CustomRibbonTab.getVersion" enabled="false" sizeString="99999999999999"/>
 					<editBox id="VulnDBVersion" imageMso="OpenAttachedCalendar" label="VulnDB version" getText="CustomRibbonTab.LastUpdate" enabled="false" sizeString="99999999999999"/>
 				</group>
+				<group id="WordHelper" label="Word-Helper" autoScale="true">
+					<button id="SyntaxHighlighter" label="Syntax highlighter" imageMso="FormatPainter" size="large" onAction="ThisWorkbook.syntaxHighlighter"/>
+				</group>
 			</tab>
 		</tabs>
 	</ribbon>

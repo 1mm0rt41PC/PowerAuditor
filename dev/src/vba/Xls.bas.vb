@@ -176,7 +176,7 @@ End Sub
 
 
 Public Sub cleanupTemplateList()
-    Range("REPORT_TYPE_TBL[REPORT TYPE]").Value2 = ""
+    ThisWorkbook.Worksheets("PowerAuditor").Range("REPORT_TYPE_TBL[REPORT TYPE]").Value2 = ""
 End Sub
 
 
