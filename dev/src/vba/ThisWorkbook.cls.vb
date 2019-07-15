@@ -33,23 +33,7 @@ Public G_naturalTableColor2 As Long
 Public G_ws As Worksheet
 Public G_SaveAsOnGoing As Boolean
 Public G_exportToProd As Boolean
-Private G_devSaveTmpWb As Workbook
 
-
-
-Private Sub Workbook_AfterSave(ByVal Success As Boolean)
-    If G_SaveAsOnGoing Then Exit Sub
-    Call Xls.updateTemplateList
-    If Not (G_devSaveTmpWb Is Nothing) Then
-        Dim ws As Worksheet
-        Dim i As Integer
-        For i = 2 To G_devSaveTmpWb.Sheets.Count
-            G_devSaveTmpWb.Sheets(i).Move After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count)
-        Next i
-        Call G_devSaveTmpWb.Close(False)
-        Set G_devSaveTmpWb = Nothing
-    End If
-End Sub
 
 
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, ByRef Cancel As Boolean)
@@ -70,26 +54,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, ByRef Cancel As Boole
         .BuiltinDocumentProperties("Keywords") = ""
         .BuiltinDocumentProperties("Comments") = .BuiltinDocumentProperties("Title")
     End With
-    If Common.isDevMode() Then
-        Versionning.exportVisualBasicCode
-        Application.DisplayAlerts = False
-        ' Suppression des feuilles
-        Set G_devSaveTmpWb = Nothing
-        If ThisWorkbook.Worksheets.Count >= 2 Then
-            Set G_devSaveTmpWb = Workbooks.Add()
-            Dim ws As Worksheet
-            For Each ws In ThisWorkbook.Worksheets
-                If ws.name <> "PowerAuditor" Then
-                    ws.Move After:=G_devSaveTmpWb.Worksheets(G_devSaveTmpWb.Worksheets.Count)
-                    'ws.Delete
-                End If
-            Next ws
-        End If
-        Application.DisplayAlerts = True
-    End If
-    Call Xls.cleanUpInvalidExcelRef
-    ' On cleanup la liste des templates
-    Call Xls.cleanupTemplateList
+    Versionning.exportVisualBasicCode
 End Sub
 
 
