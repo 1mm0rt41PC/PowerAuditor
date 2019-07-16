@@ -25,13 +25,21 @@ Option Explicit
 ' You should have received a copy of the GNU General Public License
 ' along with this program; see the file COPYING. If not, write to the
 ' Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+Private G_vOldValue As Variant
+
 Private Sub Worksheet_Change(ByVal Target As Range)
     If ThisWorkbook.G_exportToProd Then Exit Sub
-    If Not Application.Intersect(Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing Then
+    If Not Application.Intersect(ThisWorkbook.Worksheets("PowerAuditor").Range("REPORT_TYPE"), Range(Target.Address)) Is Nothing Then
         Call Xls.loadExcelSheet
     End If
     
-    If Not Application.Intersect(Range("LEVEL"), Range(Target.Address)) Is Nothing Then
+    If Not Application.Intersect(ThisWorkbook.Worksheets("PowerAuditor").Range("LEVEL"), Range(Target.Address)) Is Nothing Then
         Call Xls.updateLevelCellColor
     End If
 End Sub
+
+
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+    G_vOldValue = Target.Value
+End Sub
+
