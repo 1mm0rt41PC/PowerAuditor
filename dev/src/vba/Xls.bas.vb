@@ -70,7 +70,7 @@ End Function
 
 
 
-Public Function loadExcelSheet() As Boolean
+Public Function loadExcelSheet()
     Dim RT As String: RT = getInfo("REPORT_TYPE")
     If MsgBox("Do you switch to the ReportType " & RT & " ?" & vbNewLine & "/!\ You will lost all information from this excel !!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then
         loadExcelSheet = False
@@ -134,26 +134,31 @@ End Function
 
 
 '===============================================================================
-' @brief Search in the column {col} of the Worksheet {ws} for the value {sVal} (INSENSITIVE CASE)
+' @brief Search in the column {iCol} of the Worksheet {ws} for the value {sSearch} (INSENSITIVE CASE)
 ' and return the number of occurence.
-' @param[in] ws     {Worksheet} The sheet to use
-' @param[in] iCol   {int} The column to lookat
-' @param[in] sVal   {String} The string to search (INSENSITIVE CASE)
+' @param[in] ws        {Worksheet} The sheet to use
+' @param[in] iCol      {int} The column to lookat
+' @param[in] sSearch   {String} The string to search (INSENSITIVE CASE)
 ' @return {int} The number of occurence
-Public Function countOccurenceInCol(ws As Worksheet, iCol As Integer, sVal As String) As Integer
+Public Function countOccurenceInCol(ws As Worksheet, iCol As Integer, sSearch As String, Optional bPartialMode As Boolean = False) As Integer
     Dim iRow As Integer
-    Dim ret As Integer: ret = 0
-    
-    sVal = LCase(sVal)
-    
     iRow = 3
-    While Not IsEmpty(ws.Cells(iRow, 1).Value2)
-        If LCase(ws.Cells(iRow, iCol).Value2) = sVal Then
-            ret = ret + 1
-        End If
-        iRow = iRow + 1
-    Wend
-    countOccurenceInCol = ret
+    countOccurenceInCol = 0
+    If bPartialMode = False Then
+        While ws.Cells(iRow, iCol).Value2 <> ""
+            If StrComp(ws.Cells(iRow, iCol).Value2, sSearch, vbTextCompare) = 0 Then
+                countOccurenceInCol = countOccurenceInCol + 1
+            End If
+            iRow = iRow + 1
+        Wend
+    Else
+        While ws.Cells(iRow, iCol).Value2 <> ""
+            If InStr(1, ws.Cells(iRow, iCol).Value2, sSearch, vbTextCompare) = 0 Then
+                countOccurenceInCol = countOccurenceInCol + 1
+            End If
+            iRow = iRow + 1
+        Wend
+    End If
 End Function
 
 
@@ -256,3 +261,11 @@ Public Function getVersionDate() As String
     getVersionDate = VERSION_DATE
 End Function
 
+
+Public Function nbNotEmptyRows(ws As Worksheet, iCol As Integer) As Integer
+    nbNotEmptyRows = 3
+    While ws.Cells(nbNotEmptyRows, iCol).Value2 <> ""
+        nbNotEmptyRows = nbNotEmptyRows + 1
+    Wend
+    nbNotEmptyRows = nbNotEmptyRows - 3
+End Function

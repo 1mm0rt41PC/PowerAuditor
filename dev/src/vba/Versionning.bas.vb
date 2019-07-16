@@ -56,9 +56,12 @@ Public Sub exportVisualBasicCode()
         On Error Resume Next
         Err.Clear
         
-        Path = sPath & "\" & VBComponent.name & extension
+        If Left(VBComponent.name, 3) = "RT_" Then
+            Path = IOFile.getPowerAuditorPath() & "\template\" & VBComponent.name & extension
+        Else
+            Path = sPath & "\" & VBComponent.name & extension
+        End If
         Call VBComponent.Export(Path)
-        
         If Err.Number <> 0 Then
             Call MsgBox("Failed to export " & VBComponent.name & " to " & Path, vbCritical + vbSystemModal, "PowerAuditor")
         Else
@@ -137,7 +140,7 @@ End Function
 
 Public Sub loadModule(ByVal sModuleName As String)
     If Not Common.isDevMode() Then Exit Sub
-    Dim sPath As String: sPath = getVBAPath
+    Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\template\"
     Dim pFile: pFile = Dir(sPath & "\RT_" & sModuleName & ".*")
     Dim pos
     If pFile = "" Then Exit Sub
@@ -150,3 +153,4 @@ Public Sub loadModule(ByVal sModuleName As String)
     End With
     Debug.Print "Successfully loaded report type: " & sModuleName
 End Sub
+

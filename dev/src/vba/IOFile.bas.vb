@@ -313,4 +313,3 @@ End Function
 Public Function getVBAPath() As String
     getVBAPath = ThisWorkbook.Path & "\src\vba\"
 End Function
-

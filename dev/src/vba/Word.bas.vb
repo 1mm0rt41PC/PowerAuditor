@@ -571,3 +571,5 @@ Public Sub pygmentizeMe(wDoc As Object, cc As Object, sFullpath As String, sType
         .Paragraphs.Alignment = wdAlignParagraphCenter
     End With
 End Sub
+
+

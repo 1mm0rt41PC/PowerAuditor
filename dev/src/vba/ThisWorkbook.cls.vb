@@ -35,7 +35,11 @@ Public G_SaveAsOnGoing As Boolean
 Public G_exportToProd As Boolean
 
 
-
+'===============================================================================
+' @brief Cleanup the document and export VBA code when saving
+' @param...
+' @return {NONE}
+'
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, ByRef Cancel As Boolean)
     If G_SaveAsOnGoing Then Exit Sub
     If SaveAsUI = False And IOFile.getPowerAuditorPath() & "PowerAuditor_last.xlsm" = ThisWorkbook.FullName Then
@@ -58,6 +62,15 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, ByRef Cancel As Boole
 End Sub
 
 
+'===============================================================================
+' @brief Init environnement at boot:
+'        - install all packages
+'        - avoid main template to be altered
+'        - list all available plugins
+'        - run auto-updater
+' @return {NONE}
+' @warning The system doesn't load anymore all vba code from repo. You need to load all source code manually.
+'
 Private Sub Workbook_Open()
     ' On install les pré-requis
     If Not Common.isDevMode() Then
@@ -78,11 +91,16 @@ Private Sub Workbook_Open()
     ' On update les repos
     Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\bin\AutoUpdater.exe", 0, False)
     'Versionning.VBAFromCommonSrc
-    
-    Call Xls.updateTemplateList
 End Sub
 
 
+'===============================================================================
+' @brief This sub allows to fill a Word document with the Excel datas
+'        This function will:
+'        - set all fields, CLIENT, TARGET, SCOPE, ...
+'        - call RT.exportExcel2Word_before, RT.exportExcel2Word_insertVuln, RT.exportExcel2Word_after.
+' @return {NONE}
+'
 Public Sub exportExcelToWordTemplate(control As Object)
     If MsgBox("Do you want generate the word template ?", vbYesNo + vbQuestion + vbSystemModal) = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
@@ -137,7 +155,11 @@ Public Sub exportExcelToWordTemplate(control As Object)
 End Sub
 
 
-
+'===============================================================================
+' @brief This sub allows to generate the synthesis of the word document with Excel datas.
+'        This function is a basic wrapper of RT.genSynthesis
+' @return {NONE}
+'
 Sub genSynthesis(control As Object)
     If MsgBox("Do you want generate the SYTHESIS ?" & vbNewLine & "This action will >>>REMOVE<<< the current SYTHESIS !!!!!!!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
@@ -154,6 +176,11 @@ Sub genSynthesis(control As Object)
 End Sub
 
 
+'===============================================================================
+' @brief This sub allows to generate finals documents.
+'        This function is a basic wrapper of RT.exportFinalStaticsDocuments
+' @return {NONE}
+'
 Sub exportFinalStaticsDocuments(control As Object)
     If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
@@ -172,6 +199,10 @@ Sub exportFinalStaticsDocuments(control As Object)
 End Sub
 
 
+'===============================================================================
+' @brief This sub allows to send PowerAuditor in production to all users
+' @return {NONE}
+'
 Public Sub ToProd(control As Object)
     If Not Common.isDevMode() Then
         MsgBox "You do not use the xlsm development file", vbOKOnly + vbSystemModal + vbInformation, "PowerAuditor"
@@ -240,6 +271,11 @@ Public Sub ToProd(control As Object)
 End Sub
 
 
+'===============================================================================
+' @brief This sub allows to fill the Excel with vulnerabilities from the VULN folder.
+'        In addition, this sub uses datas from the shared database.
+' @return {NONE}
+'
 Public Sub fillExcelWithProof(control As Object)
     If MsgBox("Do you want fill this excel with your proof ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
@@ -249,32 +285,43 @@ Public Sub fillExcelWithProof(control As Object)
     Dim toImportText As Variant: toImportText = Array("desc", "category", "fixtype", "risk", "fix")
     Dim i As Integer
     Dim vlnDir As String: vlnDir = ActiveWorkbook.Path & "\vuln\"
-    Dim iRow As Integer: iRow = 3
+    Dim iRow As Integer: iRow = nbNotEmptyRows(ws, COL_ID) + 3
     Dim pFile: pFile = Dir(vlnDir & "*", vbDirectory)
     Dim sPath As String
     Dim sFile As String
     Do While pFile <> ""
         sFile = pFile
         If Left(sFile, 1) <> "." Then
-            ws.Cells(iRow, 1).EntireRow.Insert
-            ws.Cells(iRow + 1, 1).EntireRow.Copy ws.Cells(iRow, 1)
-            ws.Cells(iRow, COL_ID).Value2 = iRow - 2
-            ws.Cells(iRow, COL_NAME).Value2 = sFile
-            
-            If IOFile.isFile(IOFile.getVulnDBPath(sFile) & "\desc.html") Then
-                sPath = IOFile.getVulnDBPath(sFile)
-                For i = 0 To UBound(toImportText)
-                    ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & toImportText(i) & ".html"), Chr(10) & Chr(13))
-                Next i
+            If Xls.countOccurenceInCol(ws, COL_NAME, sFile) = 0 Then
+                ws.Cells(iRow, 1).EntireRow.Insert
+                ws.Cells(iRow + 1, 1).EntireRow.Copy ws.Cells(iRow, 1)
+                ws.Cells(iRow, COL_ID).Value2 = iRow - 2
+                ws.Cells(iRow, COL_NAME).Value2 = sFile
+                
+                If IOFile.isFile(IOFile.getVulnDBPath(sFile) & "\desc.html") Then
+                    sPath = IOFile.getVulnDBPath(sFile)
+                    For i = 0 To UBound(toImportText)
+                        ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & toImportText(i) & ".html"), Chr(10) & Chr(13))
+                    Next i
+                End If
+                iRow = iRow + 1
             End If
-            iRow = iRow + 1
         End If
         pFile = Dir
     Loop
+    While ws.Cells(iRow, COL_ID).Value2 <> ""
+        ws.Cells(iRow, COL_ID).Value2 = iRow - 2
+        iRow = iRow + 1
+    Wend
     
     MsgBox "Import done", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
 
+
+'===============================================================================
+' @brief This sub allows to fill the Excel with vulnerabilities from the shared database.
+' @return {NONE}
+'
 Public Sub importVulnFromDatabase(control As Object)
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
 
@@ -287,28 +334,38 @@ Public Sub importVulnFromDatabase(control As Object)
     If sVuln = "" Then Exit Sub
     Dim aVuln() As String: aVuln = Split(sVuln, vbCrLf)
     
-    Dim iRow As Integer: iRow = 3
+    Dim iRow As Integer: iRow = nbNotEmptyRows(ws, COL_ID) + 3
 
     Dim sPath As String
     For j = 0 To UBound(aVuln)
         Call IOFile.myMkDir(ThisWorkbook.Path & "\vuln\" & aVuln(j))
-        ws.Cells(iRow, 1).EntireRow.Insert
-        ws.Cells(iRow + 1, 1).EntireRow.Copy ws.Cells(iRow, 1)
-        ws.Cells(iRow, COL_ID).Value2 = iRow - 2
-        ws.Cells(iRow, COL_NAME).Value2 = aVuln(j)
-        If IOFile.isFile(IOFile.getVulnDBPath(aVuln(j)) & "\desc.html") Then
-            sPath = IOFile.getVulnDBPath(aVuln(j))
-            For i = 0 To UBound(toImportText)
-                ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & toImportText(i) & ".html"), Chr(10) & Chr(13))
-            Next i
+        If Xls.countOccurenceInCol(ws, COL_NAME, aVuln(j)) = 0 Then
+            ws.Cells(iRow, 1).EntireRow.Insert
+            ws.Cells(iRow + 1, 1).EntireRow.Copy ws.Cells(iRow, 1)
+            ws.Cells(iRow, COL_ID).Value2 = iRow - 2
+            ws.Cells(iRow, COL_NAME).Value2 = aVuln(j)
+            If IOFile.isFile(IOFile.getVulnDBPath(aVuln(j)) & "\desc.html") Then
+                sPath = IOFile.getVulnDBPath(aVuln(j))
+                For i = 0 To UBound(toImportText)
+                    ws.Cells(iRow, Xls.getColLocation(ws, toImportText(i))).Value2 = Common.trim(IOFile.fileGetContent(sPath & "\" & toImportText(i) & ".html"), Chr(10) & Chr(13))
+                Next i
+            End If
+            iRow = iRow + 1
         End If
-        iRow = iRow + 1
     Next j
+    While ws.Cells(iRow, COL_ID).Value2 <> ""
+        ws.Cells(iRow, COL_ID).Value2 = iRow - 2
+        iRow = iRow + 1
+    Wend
     
     MsgBox "Import done", vbSystemModal + vbInformation, "PowerAuditor"
 End Sub
 
 
+'===============================================================================
+' @brief This sub allows to export vulnerabilities to the shared database.
+' @return {NONE}
+'
 Public Sub exportVulnToGit(control As Object)
     Dim iRow As Integer: iRow = 3
     Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
@@ -398,6 +455,10 @@ Public Sub exportVulnToGit(control As Object)
 End Sub
 
 
+'===============================================================================
+' @brief This sub allows to highlight code and insert it into the word document.
+' @return {NONE}
+'
 Public Sub syntaxHighlighter(control As Object)
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7) & ".html"
@@ -413,5 +474,6 @@ Public Sub syntaxHighlighter(control As Object)
     End With
     
     Call Word.pygmentizeMe(wDoc, cc, tmpFile, sLang, "xxx")
-    'Call cc.Delete(False)
+    Call cc.Delete(False)
 End Sub
+
