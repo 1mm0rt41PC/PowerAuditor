@@ -166,7 +166,7 @@ End Function
 Public Sub updateTemplateList()
     Dim ws As Worksheet: Set ws = ThisWorkbook.Worksheets("PowerAuditor")
     Dim rReportTypeTbl As Range: Set rReportTypeTbl = ws.Range("REPORT_TYPE_TBL[REPORT TYPE]")
-    Dim iRow As Integer: iRow = rReportTypeTbl.Row
+    Dim iRow As Integer: iRow = rReportTypeTbl.row
     Dim iCol As Integer: iCol = rReportTypeTbl.Column
     Dim sPath As String: sPath = IOFile.getPowerAuditorPath() & "\template\"
     Dim pFile: pFile = Dir(sPath & "*.xlsm")
@@ -268,4 +268,17 @@ Public Function nbNotEmptyRows(ws As Worksheet, iCol As Integer) As Integer
         nbNotEmptyRows = nbNotEmptyRows + 1
     Wend
     nbNotEmptyRows = nbNotEmptyRows - 3
+End Function
+
+
+Public Function getWorksheetRT() As Worksheet
+    Dim sRT As String: sRT = Common.getInfo("REPORT_TYPE")
+    If Common.isEmptyString(sRT) Then GoTo getWorksheetRT_fail
+    Set getWorksheetRT = ThisWorkbook.Worksheets(sRT)
+    Exit Function
+getWorksheetRT_fail:
+    Set getWorksheetRT = Nothing
+    ThisWorkbook.Worksheets("PowerAuditor").Activate
+    ThisWorkbook.Worksheets("PowerAuditor").Range("REPORT_TYPE").Select
+    Call MsgBox("Please, select a >Report Type< before", vbInformation + vbOKOnly + vbSystemModal, "PowerAuditor")
 End Function

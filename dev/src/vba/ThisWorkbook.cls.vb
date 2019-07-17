@@ -102,6 +102,8 @@ End Sub
 ' @return {NONE}
 '
 Public Sub exportExcelToWordTemplate(control As Object)
+    Dim ws As Worksheet: Set ws = Xls.getWorksheetRT()
+    If ws Is Nothing Then Exit Sub
     If MsgBox("Do you want generate the word template ?", vbYesNo + vbQuestion + vbSystemModal) = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
         Worksheets("PowerAuditor").Activate
@@ -117,7 +119,6 @@ Public Sub exportExcelToWordTemplate(control As Object)
 
     Dim i As Integer
     Dim iRow As Integer: iRow = 3
-    Dim ws As Worksheet
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Dim nbVuln As Integer
     
@@ -161,6 +162,8 @@ End Sub
 ' @return {NONE}
 '
 Sub genSynthesis(control As Object)
+    Dim ws As Worksheet: Set ws = Xls.getWorksheetRT()
+    If ws Is Nothing Then Exit Sub
     If MsgBox("Do you want generate the SYTHESIS ?" & vbNewLine & "This action will >>>REMOVE<<< the current SYTHESIS !!!!!!!!", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
         Worksheets("PowerAuditor").Activate
@@ -169,7 +172,6 @@ Sub genSynthesis(control As Object)
         Exit Sub
     End If
     
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call RT.genSynthesis(wDoc, ws)
     MsgBox "Generated", vbInformation + vbSystemModal, "PowerAuditor"
@@ -182,6 +184,8 @@ End Sub
 ' @return {NONE}
 '
 Sub exportFinalStaticsDocuments(control As Object)
+    Dim ws As Worksheet: Set ws = Xls.getWorksheetRT()
+    If ws Is Nothing Then Exit Sub
     If MsgBox("Do you want export the template to finals documents ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     If Common.isEmptyString(Common.getInfo("LEVEL")) Then
         Worksheets("PowerAuditor").Activate
@@ -190,12 +194,11 @@ Sub exportFinalStaticsDocuments(control As Object)
         Exit Sub
     End If
     
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Call Word.setCCVal(wDoc, "VERSION_DATE", Xls.getVersionDate())
     Call RT.exportFinalStaticsDocuments(wDoc, ws)
     Call IOFile.runCmd("explorer.exe " & ThisWorkbook.Path & "\output", 1, False)
-    MsgBox "Generated", vbInformation + vbSystemModal, "PowerAuditor"
+    Call MsgBox("Generated", vbInformation + vbSystemModal, "PowerAuditor")
 End Sub
 
 
@@ -277,8 +280,9 @@ End Sub
 ' @return {NONE}
 '
 Public Sub fillExcelWithProof(control As Object)
+    Dim ws As Worksheet: Set ws = Xls.getWorksheetRT()
+    If ws Is Nothing Then Exit Sub
     If MsgBox("Do you want fill this excel with your proof ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
 
     Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = RT.getExportField_KeyColumn(ws)
@@ -323,7 +327,8 @@ End Sub
 ' @return {NONE}
 '
 Public Sub importVulnFromDatabase(control As Object)
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
+    Dim ws As Worksheet: Set ws = Xls.getWorksheetRT()
+    If ws Is Nothing Then Exit Sub
 
     Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = RT.getExportField_KeyColumn(ws)
@@ -367,9 +372,9 @@ End Sub
 ' @return {NONE}
 '
 Public Sub exportVulnToGit(control As Object)
+    Dim ws As Worksheet: Set ws = Xls.getWorksheetRT()
+    If ws Is Nothing Then Exit Sub
     Dim iRow As Integer: iRow = 3
-    Dim ws As Worksheet: Set ws = Worksheets(getInfo("REPORT_TYPE"))
-    
     Dim COL_ID As Integer: COL_ID = Xls.getColLocation(ws, "id")
     Dim COL_NAME As Integer: COL_NAME = Xls.getColLocation(ws, "name")
     Dim name As String
@@ -388,6 +393,7 @@ Public Sub exportVulnToGit(control As Object)
     Wend
     sData = Common.PowerExporter(sData)
     If sData = "" Then Exit Sub
+    If MsgBox("Do you want EXPORT this excel to the shared database ?", vbYesNo + vbQuestion + vbSystemModal, "PowerAuditor") = vbNo Then Exit Sub
     
     Dim sRows() As String
     sRows = Split(sData, vbCrLf)
@@ -460,6 +466,8 @@ End Sub
 ' @return {NONE}
 '
 Public Sub syntaxHighlighter(control As Object)
+    Dim ws As Worksheet: Set ws = Xls.getWorksheetRT()
+    If ws Is Nothing Then Exit Sub
     Dim wDoc As Object: Set wDoc = Word.getInstance()
     Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7) & ".html"
     Call IOFile.runCmd(IOFile.getPowerAuditorPath() & "\bin\SyntaxHighlighter-Helper.exe " & Chr(34) & tmpFile & Chr(34))
@@ -476,4 +484,3 @@ Public Sub syntaxHighlighter(control As Object)
     Call Word.pygmentizeMe(wDoc, cc, tmpFile, sLang, "xxx")
     Call cc.Delete(False)
 End Sub
-

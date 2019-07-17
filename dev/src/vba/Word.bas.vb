@@ -288,7 +288,7 @@ End Function
 '
 Private Sub insertOrUpdateProof(wDoc As Object, ccExploit As Object, ByVal sFullpath As String, ByVal sLegend As String)
     ' Création du ContentControl
-    Dim cc: Set cc = Word.selectCCInCC(ccExploit.Range, Replace(sFullpath, wDoc.Path, ""))
+    Dim cc As Object: Set cc = Word.selectCCInCC(ccExploit.Range, Replace(sFullpath, wDoc.Path, ""))
     If cc Is Nothing Then
         ccExploit.Range.InsertParagraphAfter
         ccExploit.Range.InsertParagraphAfter
@@ -532,7 +532,7 @@ End Sub
 
 
 
-Public Sub pygmentizeMe(wDoc As Object, cc As Object, sFullpath As String, sType As String, ByVal sLegend As String)
+Public Sub pygmentizeMe(wDoc As Object, ByRef cc As Object, sFullpath As String, sType As String, ByVal sLegend As String)
     Dim tmpFile As String: tmpFile = Environ("temp") & "\" & randomString(7) & ".html"
     Dim pygmentize As String: pygmentize = "pygmentize"
     If IOFile.isFile(IOFile.getPowerAuditorPath() & "\bin\pygmentize.exe") Then
