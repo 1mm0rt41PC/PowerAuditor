@@ -37,6 +37,12 @@ Public Sub cleanUpInvalidExcelRef()
     ' Nétoyage des noms de range
     Dim rangeName As name
     For Each rangeName In ThisWorkbook.Names
+        If InStr(1, rangeName.RefersTo, "=[") > 0 Then
+            rangeName.RefersTo = "=" + Split(rangeName.RefersTo, "]")(1)
+        End If
+        If InStr(1, rangeName.RefersTo, "='") > 0 Then
+            rangeName.RefersTo = "=" + Split(rangeName.RefersTo, "'")(1)
+        End If
         If InStr(1, rangeName.RefersTo, "#REF!") > 0 Then
             ThisWorkbook.Names(rangeName.Index).Delete
         End If
